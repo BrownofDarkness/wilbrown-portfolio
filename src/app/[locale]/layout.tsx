@@ -3,6 +3,8 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Manrope, Geist_Mono } from "next/font/google";
+import { Footer } from "@/components/layout/Footer";
+import { TopNav } from "@/components/layout/TopNav";
 import { routing } from "@/i18n/routing";
 import { SITE } from "@/lib/constants";
 import "../globals.css";
@@ -18,6 +20,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
   display: "swap",
 });
+
+const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;}}catch(e){}})();`;
 
 export const metadata: Metadata = {
   title: {
@@ -62,8 +66,13 @@ export default async function LocaleLayout({
       className={`${manrope.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-bg text-fg font-sans">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+      <body className="flex min-h-full flex-col bg-bg text-fg font-sans">
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <NextIntlClientProvider>
+          <TopNav />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </NextIntlClientProvider>
       </body>
     </html>
   );
