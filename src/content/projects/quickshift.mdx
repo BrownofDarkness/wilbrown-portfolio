@@ -1,0 +1,59 @@
+---
+slug: "quickshift"
+order: 3
+title: "QuickShift — gestion de shifts pour structures hospitalières"
+client: "Projet client"
+period: "2024"
+role: "Développeur Flutter · Backend Django"
+summary: "Application mobile Flutter avec backend Django + Redis pour la gestion des shifts d'équipes hospitalières. Multi-rôles, navigation StatefulShellRoute, API REST sécurisée par JWT."
+tags: ["Flutter", "Django", "Mobile", "Backend"]
+stack: ["Flutter 3", "Dart", "GoRouter", "Riverpod", "Dio", "Django 4", "DRF", "PyJWT", "Redis", "PostgreSQL"]
+confidential: true
+locale: "fr"
+---
+
+<Callout type="warn" title="Mention de confidentialité">
+QuickShift est un projet client dont la propriété intellectuelle appartient à mon client. Cette page décrit mon implication technique et les choix d'architecture sans dévoiler de captures d'écran, de logique métier détaillée ou d'éléments produit confidentiels.
+</Callout>
+
+QuickShift est une application mobile dédiée à la gestion des shifts d'équipes dans des structures hospitalières. Mon mandat : concevoir et livrer l'application Flutter + son backend Django, en partant d'un cahier des charges fonctionnel et en gérant l'intégralité de la stack technique.
+
+## Contexte
+
+Le client opère dans le secteur de la santé et avait besoin d'une solution mobile pour permettre à ses équipes (administrateurs, managers de service, employés) de consulter, demander et valider des shifts en temps réel. Les contraintes : multi-rôles avec des permissions strictes, fiabilité hors-ligne partielle, et une UX rapide adaptée à un usage entre deux interventions.
+
+## Architecture
+
+**Frontend Flutter** avec :
+
+- **GoRouter + StatefulShellRoute** pour la navigation à onglets persistants (chaque rôle voit sa propre arborescence)
+- **Riverpod** pour la gestion d'état (sessions, listes de shifts, formulaires)
+- **Dio** pour les appels HTTP avec intercepteurs JWT + refresh automatique
+- **Stockage local** des données récentes (cache shifts visualisés récemment)
+
+**Backend Django** avec :
+
+- **Django REST Framework** pour exposer les endpoints
+- **Authentification JWT** avec refresh tokens, scope rôle inclus dans le payload
+- **Permissions custom** par rôle au niveau ViewSet (admin / manager / employé)
+- **Redis** pour le cache des listes de shifts et la queue de notifications
+- **PostgreSQL** pour la persistance
+
+<TechStack items={["Flutter 3", "Dart", "GoRouter", "Riverpod", "Dio", "Django 4", "DRF", "PyJWT", "Redis", "PostgreSQL"]} />
+
+La séparation API/mobile a permis au client d'envisager plus tard une version web sans toucher au backend.
+
+## Réalisations
+
+- **Application Flutter livrée** sur Android (déploiement client géré séparément)
+- **Backend Django en production** avec endpoints documentés et permissions testées
+- **Authentification multi-rôles** opérationnelle avec scope JWT et permissions DRF
+- **Navigation StatefulShellRoute** : chaque rôle a son propre stack de navigation avec onglets persistants, sans perdre l'état au changement d'onglet
+- **Cache Redis** pour les listes consultées fréquemment, réduisant la charge DB
+- **Documentation API** pour le client et les futurs intervenants
+
+## Leçons
+
+- **StatefulShellRoute change la donne en Flutter.** Avant, simuler une nav à onglets persistants demandait du code custom fragile. Avec StatefulShellRoute, c'est natif, déclaratif, et l'état des onglets est préservé sans hack.
+- **Riverpod over BLoC pour les apps moyennes.** Pour un projet de cette taille (10-15 écrans, 4-5 features distinctes), Riverpod offre une bien meilleure DX que BLoC pour le coût d'apprentissage qu'il demande.
+- **Le JWT scope par rôle évite la prolifération d'endpoints.** Plutôt que `/api/admin/shifts` + `/api/manager/shifts` + `/api/employee/shifts`, j'ai gardé un `/api/shifts` unique dont la réponse varie selon le rôle dans le JWT. Le backend DRF filtre ce que l'utilisateur a le droit de voir. Moins de code, moins de chemins à sécuriser.

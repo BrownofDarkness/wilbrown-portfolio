@@ -1,0 +1,52 @@
+---
+slug: "n8n"
+order: 4
+title: "Workflows n8n + LLM sur VPS personnel"
+client: "Projet personnel"
+period: "2025"
+role: "Builder · Prompt engineer"
+summary: "Instance n8n self-hostée sur VPS perso, orchestrant bots Telegram + appels Groq (Llama 3) pour des assistants conversationnels et workflows automatisés. Stack 100% maîtrisée."
+tags: ["IA", "Automation", "Self-host", "LLM"]
+stack: ["n8n", "Docker", "Nginx", "Telegram Bot API", "Groq Cloud", "Llama 3.1", "Let's Encrypt", "Ubuntu"]
+confidential: false
+locale: "fr"
+---
+
+Depuis 2025, je fais tourner ma propre instance **n8n** sur mon VPS pour assembler des workflows mêlant Telegram, LLMs (via Groq), et services tiers. C'est devenu mon terrain de jeu pour l'automation perso et un laboratoire concret pour comprendre les patterns d'intégration IA en production.
+
+## Contexte
+
+J'ai voulu sortir de la consommation passive d'outils SaaS IA et reprendre la main sur trois choses : **où mes données circulent**, **comment je compose les briques**, et **combien ça me coûte**. Les API "AI workflow" commerciales (Zapier AI, Make) m'enfermaient sur les trois axes. Self-host de n8n + appels directs aux providers LLM ouverts m'a redonné le contrôle.
+
+## Architecture
+
+L'instance n8n tourne sur mon VPS Ubuntu, derrière **Nginx** en reverse proxy avec **Let's Encrypt** pour le SSL. n8n est containerisé via **Docker** pour faciliter les upgrades.
+
+Les workflows typiques :
+
+- **Trigger Telegram Bot** : un message dans un chat Telegram déclenche un workflow
+- **Node HTTP Request** vers l'API Groq (compatible OpenAI) avec un modèle Llama 3.1 (8B ou 70B selon le cas)
+- **Logique conditionnelle n8n** : router selon le contenu, parser la réponse, enrichir avec des appels HTTP supplémentaires
+- **Réponse Telegram** envoyée dans le chat d'origine
+
+<TechStack items={["n8n self-hosted", "Docker", "Nginx", "Let's Encrypt", "Telegram Bot API", "Groq Cloud", "Llama 3.1 8B/70B", "Webhooks"]} />
+
+Les **credentials** (Groq API key, Telegram bot token, autres) sont gérés via le store de credentials chiffré de n8n. Pas d'env vars cleartext qui traînent.
+
+## Réalisations
+
+- **Instance n8n opérationnelle** sur mon VPS, accessible en HTTPS via mon domaine
+- **Plusieurs bots Telegram fonctionnels** pour des tâches personnelles (résumé d'articles, assistant Q&A sur sujets précis, traducteur)
+- **Coût marginal** : Groq facture quasi-gratuit pour les volumes perso, et n8n self-hosted = zéro coût récurrent au-delà de mon VPS déjà payé
+- **Latence acceptable** : Telegram → n8n → Groq → réponse Telegram en ~2-3 secondes pour Llama 8B, ~5-8s pour 70B
+- **Workflows versionnés** via export JSON de n8n, sauvegardés dans un repo perso
+
+<Callout type="note" title="Pourquoi Groq plutôt qu'OpenAI ?">
+Groq sert Llama 3.1 à des tarifs très bas avec une latence d'inférence quasi-instantanée (TPU custom). Pour des bots perso avec faible volume mais besoin de réponse rapide, c'est pile la bonne combinaison. OpenAI reste pertinent quand on a besoin de capacités spécifiques (tool use sophistiqué, function calling très typé).
+</Callout>
+
+## Leçons
+
+- **n8n est sous-estimé hors de sa communauté.** Beaucoup d'équipes paient Zapier ou Make pour des workflows que n8n self-host fait en deux clics, avec accès complet aux nodes JS pour la logique custom.
+- **Les LLMs open-weight via API (Groq, Together, OpenRouter) couvrent 80% des cas que tu mets sur OpenAI**, à un dixième du coût. Le vrai différenciateur OpenAI reste la qualité GPT-5+ sur des tâches très complexes — pas pertinent pour un bot Telegram qui résume des articles.
+- **Le self-host démystifie.** Une fois que tu vois passer les requêtes HTTP brutes vers Groq, les "magic abstractions" des frameworks AI agent perdent beaucoup de leur attrait. Souvent un workflow n8n bien composé fait le job qu'un agent autonome surdimensionné prétend faire.

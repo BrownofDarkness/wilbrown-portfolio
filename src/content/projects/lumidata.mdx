@@ -3,29 +3,54 @@ slug: "lumidata"
 order: 1
 title: "Refonte de l'environnement local pour lumidata.ai"
 client: "IBAASS Labs"
-period: "2024"
+period: "Jan 2024 — Fév 2025"
 role: "Développeur Python · Infrastructure"
-summary: "Migration d'un environnement de développement vers une stack virtualisée propre — hyperviseur, microservices, VPN interne, reverse proxy, DNS."
-tags: ["ESXi", "OpenVPN", "Pritunl", "Nginx", "AWS EC2", "PostgreSQL", "Elasticsearch"]
-stack: ["VMware ESXi", "Ubuntu", "Nginx", "OpenVPN", "Pritunl", "Pritunl Zero", "AWS EC2", "PostgreSQL"]
+summary: "Migration d'un environnement de dev fragmenté vers une stack virtualisée propre — hyperviseur ESXi, VPN interne, reverse proxy, certificats SSL automatisés, DNS privé."
+tags: ["Infra", "Réseau", "Sécurité", "DevOps"]
+stack: ["VMware ESXi", "Ubuntu LTS", "Nginx", "OpenVPN", "Pritunl", "Pritunl Zero", "AWS EC2", "AWS Route 53", "Let's Encrypt"]
 confidential: false
 locale: "fr"
 ---
 
-> Draft. Le contenu détaillé sera écrit en Phase 2.
+Lumidata.ai est une plateforme d'analyse de données développée chez IBAASS Labs. Quand j'ai rejoint l'équipe en janvier 2024, l'environnement de dev était un mélange de services tournant sur les laptops, de partages réseau improvisés et de services exposés sans hygiène claire. La mission : reconstruire un environnement local propre, sécurisé et reproductible pour toute l'équipe.
 
 ## Contexte
 
-À documenter.
+L'équipe travaillait sur un produit data en évolution rapide. Chaque dev avait sa propre instance Postgres en local, ses propres tunnels SSH pour atteindre les services de staging, et personne ne savait exactement quelle version de quelle dépendance tournait où. Le bilan : 2-3 heures perdues chaque semaine en setup environnement, des bugs "ça marche chez moi" récurrents, et un risque sécurité tangible (services exposés en clair sur le réseau du bureau).
+
+L'objectif était de poser les fondations d'un environnement de dev versionnable, virtualisé, accessible à distance, et qui prépare aussi la couche infra de prod.
 
 ## Architecture
 
-À documenter.
+J'ai choisi de partir sur **VMware ESXi** comme hyperviseur (sur serveur bare metal interne), permettant de provisionner des VMs Ubuntu LTS pour chaque rôle :
+
+- une VM par service backend (Django + Postgres dédiée),
+- une VM "edge" hébergeant **Nginx** comme reverse proxy unique pour toutes les apps internes,
+- une VM **Pritunl** (interface web OpenVPN) pour gérer le VPN d'équipe.
+
+Le **VPN OpenVPN** permettait à l'équipe d'accéder aux services internes depuis n'importe où sans exposer quoi que ce soit sur Internet. **Pritunl Zero** a ensuite été ajouté pour le SSO sur les outils internes.
+
+Pour la **résolution DNS interne**, j'ai monté une zone privée sur **AWS Route 53** (via une instance EC2 légère qui relayait les requêtes), permettant aux devs d'utiliser des noms `*.internal.lumidata.ai` au lieu d'IPs. Les certificats SSL étaient automatisés via **Let's Encrypt + DNS-01 challenge** (compatible avec les noms internes non publics).
+
+<TechStack items={["VMware ESXi", "Ubuntu LTS", "Nginx", "OpenVPN", "Pritunl", "Pritunl Zero", "AWS EC2", "AWS Route 53", "Let's Encrypt", "Certbot DNS-01"]} />
 
 ## Réalisations
 
-À documenter.
+- **6 VMs provisionnées et configurées**, chacune avec son rôle clair et son runbook
+- **VPN actif** pour toute l'équipe dev — accès depuis le bureau, depuis chez soi, depuis l'extérieur
+- **Reverse proxy Nginx** avec SSL Let's Encrypt sur 100% des endpoints internes
+- **DNS privé** via Route 53 — adieu les IPs hardcodées
+- **Migration sans downtime** des services existants vers les nouvelles VMs (orchestration via cutover DNS coordonné)
+- **Documentation runbook** pour chaque service : démarrage, redémarrage, troubleshooting
 
-## Ce que ça m'a appris
+<Callout type="note" title="Le choix d'ESXi">
+J'ai hésité avec Proxmox (open source, plus moderne) mais ESXi tournait déjà sur l'hardware existant et l'équipe ne voulait pas absorber une migration hyperviseur en parallèle de cette refonte. ESXi tient ses promesses pour ce périmètre.
+</Callout>
 
-À documenter.
+## Leçons
+
+Trois choses que j'ai apprises sur ce mandat :
+
+1. **Le DNS interne est le pivot de tout**. Tant que les services s'appellent par IP, rien n'est portable. Une fois en `*.internal.lumidata.ai`, déplacer une VM = changer un enregistrement DNS, sans toucher au code.
+2. **Pritunl est sous-estimé**. L'UI web pour gérer OpenVPN + Pritunl Zero pour le SSO interne couvre 80% des besoins VPN/SSO d'une petite équipe, sans la complexité d'un Keycloak ou d'un Okta.
+3. **Le runbook vaut plus que l'archi**. Une infra élégante mais non documentée = un point de single-person dependency. Chaque service que j'ai monté a son markdown de 1 page avec les commandes de base. C'est ce qui a permis à l'équipe de garder l'autonomie après mon départ.

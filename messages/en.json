@@ -161,5 +161,11 @@
     "back": "Back",
     "loading": "Loading…",
     "scroll_hint": "Scroll"
+  },
+  "case_study": {
+    "back": "Back to projects",
+    "prev": "Previous",
+    "next": "Next",
+    "confidential": "Client engagement — under NDA"
   }
 }

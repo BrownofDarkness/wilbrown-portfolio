@@ -161,5 +161,11 @@
     "back": "Retour",
     "loading": "Chargement…",
     "scroll_hint": "Faire défiler"
+  },
+  "case_study": {
+    "back": "Retour aux projets",
+    "prev": "Précédent",
+    "next": "Suivant",
+    "confidential": "Cas d'usage client — sous accord de confidentialité"
   }
 }
