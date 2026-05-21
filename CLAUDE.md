@@ -30,7 +30,7 @@ src/
   content/projects/      MDX case studies (lumidata, snmp, quickshift, n8n)
   i18n/                  routing.ts + request.ts (next-intl)
   lib/                   utils.ts (cn), constants.ts (SITE, BRAND, LOCALES)
-  middleware.ts          next-intl routing
+  proxy.ts               next-intl routing (Next.js 16 renamed middleware.ts → proxy.ts)
 messages/
   fr.json en.json        TOUTES les copies du site (pas de strings hardcodées)
 public/
