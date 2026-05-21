@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ArrowUpRight } from "lucide-react";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Section } from "@/components/ui/Section";
 
 const PROJECTS = ["lumidata", "snmp", "quickshift", "n8n"] as const;
@@ -11,11 +10,13 @@ export async function Work() {
 
   return (
     <Section id="work">
-      <Eyebrow>{t("eyebrow")}</Eyebrow>
-      <h2 className="mt-4 max-w-2xl font-sans text-3xl font-semibold leading-tight tracking-tight text-fg sm:text-4xl md:text-5xl">
-        {t("title")}
+      <h2 className="font-sans text-4xl font-bold leading-[1.05] tracking-tight text-accent sm:text-5xl md:text-6xl">
+        {t("eyebrow")}
       </h2>
-      <p className="mt-6 max-w-2xl text-base text-fg-muted sm:text-lg">
+      <p className="mt-4 max-w-2xl text-base text-fg-muted sm:text-lg">
+        {t("title")}
+      </p>
+      <p className="mt-3 max-w-2xl text-sm text-fg-subtle">
         {t("intro")}
       </p>
 

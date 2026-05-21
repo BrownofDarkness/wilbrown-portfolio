@@ -8,6 +8,12 @@
   },
   "hero": {
     "eyebrow": "Portfolio · 2026",
+    "intro_label": "Introduction",
+    "role_label": "Full-stack developer",
+    "name": {
+      "first": "Wilfried",
+      "last": "Brown"
+    },
     "accroche": {
       "line1": "I build apps.",
       "line2": "I run the servers.",
@@ -16,7 +22,14 @@
     "bio": "Flutter / Django / Linux. 5 years of professional practice.",
     "location": "Yaoundé, Cameroon",
     "cta_primary": "See the work",
-    "cta_secondary": "Get in touch"
+    "cta_secondary": "Get in touch",
+    "stack": [
+      { "number": "01", "label": "Flutter & Dart" },
+      { "number": "02", "label": "Django & Spring" },
+      { "number": "03", "label": "Linux & Infra" },
+      { "number": "04", "label": "n8n & LLMs" }
+    ],
+    "scroll_hint": "Scroll"
   },
   "about": {
     "eyebrow": "About",
@@ -116,31 +129,13 @@
     "eyebrow": "Stack",
     "title": "Daily tools.",
     "intro": "What I work with regularly. Not exhaustive — just what genuinely matters.",
-    "categories": {
-      "mobile": {
-        "label": "Mobile",
-        "items": "Flutter · Dart · GetX · BLoC · Riverpod · GoRouter"
-      },
-      "backend": {
-        "label": "Backend",
-        "items": "Python · Django · DRF · Laravel · Spring Boot · PostgreSQL · MySQL · Redis"
-      },
-      "infra": {
-        "label": "Infra & DevOps",
-        "items": "Linux (Ubuntu, Debian, Kali) · Nginx · Docker · VPS · AWS EC2 · VMware ESXi · OpenVPN · Pritunl"
-      },
-      "observability": {
-        "label": "Observability",
-        "items": "Zabbix · Kafka · Logstash · Elasticsearch · Kibana"
-      },
-      "ai": {
-        "label": "AI & Automation",
-        "items": "n8n · Prompt engineering · OpenAI-compatible APIs (Groq, OpenRouter)"
-      },
-      "tools": {
-        "label": "Tooling",
-        "items": "Git · GitHub · GitLab · VS Code · IntelliJ · Claude Code"
-      }
+    "count_label": "techs shown",
+    "filters": {
+      "all": "All",
+      "mobile": "Mobile",
+      "backend": "Backend",
+      "infra": "Infra",
+      "tools": "Tools"
     }
   },
   "contact": {

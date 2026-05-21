@@ -2,11 +2,13 @@
 
 /*
  * Brand tokens — WilBrown
- * Locked navy / cyan / Manrope per project_design_system memory.
+ * --brand-*  raw palette (never change)
+ * --ui-*     semantic tokens (flip with [data-theme="light"])
+ * --color-*  Tailwind utility surface (generated via @theme inline)
  */
 
 :root {
-  /* Brand palette */
+  /* Brand palette — locked, never freestyle */
   --brand-navy: #03214d;
   --brand-navy-deep: #021838;
   --brand-navy-dark: #010c1f;
@@ -18,32 +20,31 @@
   --brand-off-white-warm: #f2eee8;
 
   /* Semantic tokens — dark default */
-  --color-bg: var(--brand-navy-dark);
-  --color-bg-elevated: var(--brand-navy-deep);
-  --color-fg: var(--brand-off-white);
-  --color-fg-muted: #9ba4b2;
-  --color-fg-subtle: #4a5366;
-  --color-accent: var(--brand-cyan);
-  --color-accent-soft: var(--brand-cyan-soft);
-  --color-border: #18223a;
-  --color-border-subtle: #0f1828;
+  --ui-bg: var(--brand-navy-dark);
+  --ui-bg-elevated: var(--brand-navy-deep);
+  --ui-fg: var(--brand-off-white);
+  --ui-fg-muted: #9ba4b2;
+  --ui-fg-subtle: #4a5366;
+  --ui-accent: var(--brand-cyan);
+  --ui-accent-soft: var(--brand-cyan-soft);
+  --ui-border: #18223a;
+  --ui-border-subtle: #0f1828;
 }
 
-/* Light mode (optional toggle, not default) */
 [data-theme="light"] {
-  --color-bg: var(--brand-off-white-warm);
-  --color-bg-elevated: var(--brand-off-white);
-  --color-fg: var(--brand-navy-deep);
-  --color-fg-muted: #4a5366;
-  --color-fg-subtle: #8a93a6;
-  --color-accent: var(--brand-cyan-dim);
-  --color-accent-soft: var(--brand-cyan);
-  --color-border: #d9d4cc;
-  --color-border-subtle: #ebe7df;
+  --ui-bg: var(--brand-off-white-warm);
+  --ui-bg-elevated: var(--brand-off-white);
+  --ui-fg: var(--brand-navy-deep);
+  --ui-fg-muted: #4a5366;
+  --ui-fg-subtle: #8a93a6;
+  --ui-accent: var(--brand-cyan-dim);
+  --ui-accent-soft: var(--brand-cyan);
+  --ui-border: #d9d4cc;
+  --ui-border-subtle: #ebe7df;
 }
 
 @theme inline {
-  /* Brand color utilities (e.g. bg-navy, text-cyan) */
+  /* Brand color utilities — bg-navy, text-cyan, border-cyan-dim, ... */
   --color-navy: var(--brand-navy);
   --color-navy-deep: var(--brand-navy-deep);
   --color-navy-dark: var(--brand-navy-dark);
@@ -54,16 +55,16 @@
   --color-off-white: var(--brand-off-white);
   --color-off-white-warm: var(--brand-off-white-warm);
 
-  /* Semantic utilities (e.g. bg-bg, text-fg, border-border) */
-  --color-bg: var(--color-bg);
-  --color-bg-elevated: var(--color-bg-elevated);
-  --color-fg: var(--color-fg);
-  --color-fg-muted: var(--color-fg-muted);
-  --color-fg-subtle: var(--color-fg-subtle);
-  --color-accent: var(--color-accent);
-  --color-accent-soft: var(--color-accent-soft);
-  --color-border: var(--color-border);
-  --color-border-subtle: var(--color-border-subtle);
+  /* Semantic utilities — bg-bg, text-fg, border-border-subtle, ... */
+  --color-bg: var(--ui-bg);
+  --color-bg-elevated: var(--ui-bg-elevated);
+  --color-fg: var(--ui-fg);
+  --color-fg-muted: var(--ui-fg-muted);
+  --color-fg-subtle: var(--ui-fg-subtle);
+  --color-accent: var(--ui-accent);
+  --color-accent-soft: var(--ui-accent-soft);
+  --color-border: var(--ui-border);
+  --color-border-subtle: var(--ui-border-subtle);
 
   /* Typography */
   --font-sans: var(--font-manrope);
@@ -79,8 +80,8 @@ html[data-theme="light"] {
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-fg);
+  background: var(--ui-bg);
+  color: var(--ui-fg);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   font-feature-settings: "ss01", "cv01";
   text-rendering: optimizeLegibility;
@@ -89,6 +90,24 @@ body {
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: var(--brand-navy-dark);
+  background: var(--ui-accent);
+  color: var(--ui-bg);
+}
+
+/* Subtle ambient grid — used on Hero, flips with theme via --ui-fg */
+.bg-grid {
+  background-image:
+    linear-gradient(var(--ui-fg) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ui-fg) 1px, transparent 1px);
+  background-size: 80px 80px;
+  background-position: -1px -1px;
+}
+
+/* Scroll-cue ping animation */
+@keyframes scroll-cue {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+.animate-scroll-cue {
+  animation: scroll-cue 2s ease-in-out infinite;
 }

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Manrope, Geist_Mono } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { TopNav } from "@/components/layout/TopNav";
+import { ConstellationBg } from "@/components/ui/ConstellationBg";
 import { routing } from "@/i18n/routing";
 import { SITE } from "@/lib/constants";
 import "../globals.css";
@@ -66,8 +67,12 @@ export default async function LocaleLayout({
       className={`${manrope.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col bg-bg text-fg font-sans">
+      <body className="relative flex min-h-full flex-col bg-bg text-fg font-sans">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        {/* Global constellation backdrop — sits behind everything, theme-tinted */}
+        <div className="pointer-events-none fixed inset-0 -z-50 text-accent opacity-[0.22]">
+          <ConstellationBg />
+        </div>
         <NextIntlClientProvider>
           <TopNav />
           <main className="flex-1">{children}</main>

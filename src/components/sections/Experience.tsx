@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Section } from "@/components/ui/Section";
 import { Tag } from "@/components/ui/Tag";
 
@@ -20,10 +19,12 @@ export async function Experience() {
 
   return (
     <Section id="experience">
-      <Eyebrow>{t("eyebrow")}</Eyebrow>
-      <h2 className="mt-4 max-w-2xl font-sans text-3xl font-semibold leading-tight tracking-tight text-fg sm:text-4xl md:text-5xl">
-        {t("title")}
+      <h2 className="font-sans text-4xl font-bold leading-[1.05] tracking-tight text-accent sm:text-5xl md:text-6xl">
+        {t("eyebrow")}
       </h2>
+      <p className="mt-4 max-w-2xl text-base text-fg-muted sm:text-lg">
+        {t("title")}
+      </p>
 
       <ol className="mt-16 space-y-12 sm:space-y-14">
         {ENTRIES.map((key) => {
