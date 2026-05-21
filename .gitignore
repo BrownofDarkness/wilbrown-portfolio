@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# personal planning docs (do not publish)
+PORTFOLIO_CONTEXT.md
+CV_DJOUTOP_TAKOU_Wilfried_Brown.pdf
+
+# Claude Code local config
+.claude/
+
+# design references not for production
+/design/
+
+# generated tmp dirs
+/_tmp/
+/_portfolio_tmp/

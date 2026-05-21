@@ -1,0 +1,170 @@
+{
+  "nav": {
+    "about": "About",
+    "work": "Work",
+    "stack": "Stack",
+    "contact": "Contact",
+    "language": "FR"
+  },
+  "hero": {
+    "eyebrow": "Portfolio · 2026",
+    "accroche": {
+      "line1": "I build apps.",
+      "line2": "I run the servers.",
+      "line3": "The rest is learned."
+    },
+    "bio": "Flutter / Django / Linux. 5 years of professional practice.",
+    "location": "Yaoundé, Cameroon",
+    "cta_primary": "See the work",
+    "cta_secondary": "Get in touch"
+  },
+  "about": {
+    "eyebrow": "About",
+    "title": "Full-stack developer, trained in networking and security.",
+    "bio_lines": [
+      "I build apps. I run the servers. I teach both.",
+      "Flutter / Django / Linux. 5 years of professional practice.",
+      "Yaoundé, Cameroon."
+    ],
+    "stack_label": "Daily stack",
+    "stack": {
+      "mobile": "Mobile",
+      "backend": "Backend",
+      "infra": "Infra",
+      "ia": "AI & Automation"
+    },
+    "cta": "See the work →"
+  },
+  "experience": {
+    "eyebrow": "Path",
+    "title": "Where I've built.",
+    "current": "Current",
+    "items": {
+      "freelance": {
+        "company": "Freelance",
+        "role": "Independent — Backend, Mobile, Prompt engineering",
+        "period": "2024 — present",
+        "summary": "Client mandates in Python (Django, Laravel), Flutter mobile, and AI workflows."
+      },
+      "localhost": {
+        "company": "LocalHost Academy",
+        "role": "Flutter Instructor",
+        "period": "Nov 2024 — present",
+        "summary": "Teaching Flutter mobile development to students and beginners."
+      },
+      "ibaass": {
+        "company": "IBAASS Labs",
+        "role": "Python Developer — Infra & Observability",
+        "period": "Jan 2024 — Feb 2025",
+        "summary": "SNMP pipeline Zabbix → Kafka → Logstash → Elasticsearch → Kibana. Local environment overhaul on VMware ESXi with internal VPN (OpenVPN, Pritunl), Nginx reverse proxy, and AWS EC2 DNS resolution."
+      },
+      "coding_industry": {
+        "company": "Coding Industry",
+        "role": "Backend & Mobile Developer",
+        "period": "Feb 2024 — Dec 2024",
+        "summary": "Analysis, design and delivery of Python backend solutions. Flutter mobile applications (Quality Food, Tizygo)."
+      },
+      "min_ext": {
+        "company": "Ministry of Foreign Affairs (internship)",
+        "role": "Network & Security",
+        "period": "Jun — Aug 2024",
+        "summary": "Switch configuration, network administration, maintenance."
+      },
+      "cnls": {
+        "company": "National Committee for Fight Against AIDS (internship)",
+        "role": "Network & Development",
+        "period": "Jul — Sep 2024",
+        "summary": "Mikrotik router and pfSense firewall configuration. Website rebuild in Symfony."
+      },
+      "yaknema": {
+        "company": "YAKNEMA (internships)",
+        "role": "Flutter mobile · Django backend · C/SDL2",
+        "period": "Jul — Aug 2021/2022/2023",
+        "summary": "Three successive summers: learning C with an SDL2 game, then Django REST backend, then Flutter mobile on a client project."
+      }
+    }
+  },
+  "work": {
+    "eyebrow": "Work",
+    "title": "A few projects shipped or operated.",
+    "intro": "Four representative case studies. Detailed write-ups live in sub-pages.",
+    "view_case": "Read the case study →",
+    "projects": {
+      "lumidata": {
+        "title": "lumidata.ai infra overhaul",
+        "client": "IBAASS Labs · 2024",
+        "summary": "Migration to VMware ESXi with internal OpenVPN/Pritunl, Nginx reverse proxy, AWS EC2 DNS resolution."
+      },
+      "snmp": {
+        "title": "SNMP observability pipeline",
+        "client": "IBAASS Labs · 2024",
+        "summary": "SNMP collection via Python, orchestrated Zabbix → Kafka → Logstash → Elasticsearch → Kibana, load balancing."
+      },
+      "quickshift": {
+        "title": "QuickShift — hospital shift management",
+        "client": "Client project · 2024",
+        "summary": "Flutter app with Django + Redis backend. Multi-role (admin, manager, staff), GoRouter navigation, secure REST API."
+      },
+      "n8n": {
+        "title": "n8n + LLM workflows",
+        "client": "Personal project · 2025",
+        "summary": "Telegram bot + Llama (Groq) integrations via n8n on personal VPS. Triggers, HTTP nodes, expressions, credentials."
+      }
+    }
+  },
+  "stack": {
+    "eyebrow": "Stack",
+    "title": "Daily tools.",
+    "intro": "What I work with regularly. Not exhaustive — just what genuinely matters.",
+    "categories": {
+      "mobile": {
+        "label": "Mobile",
+        "items": "Flutter · Dart · GetX · BLoC · Riverpod · GoRouter"
+      },
+      "backend": {
+        "label": "Backend",
+        "items": "Python · Django · DRF · Laravel · Spring Boot · PostgreSQL · MySQL · Redis"
+      },
+      "infra": {
+        "label": "Infra & DevOps",
+        "items": "Linux (Ubuntu, Debian, Kali) · Nginx · Docker · VPS · AWS EC2 · VMware ESXi · OpenVPN · Pritunl"
+      },
+      "observability": {
+        "label": "Observability",
+        "items": "Zabbix · Kafka · Logstash · Elasticsearch · Kibana"
+      },
+      "ai": {
+        "label": "AI & Automation",
+        "items": "n8n · Prompt engineering · OpenAI-compatible APIs (Groq, OpenRouter)"
+      },
+      "tools": {
+        "label": "Tooling",
+        "items": "Git · GitHub · GitLab · VS Code · IntelliJ · Claude Code"
+      }
+    }
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "title": "Let's talk.",
+    "intro": "Freelance, opportunity, or just curiosity — email is the fastest way through.",
+    "email_label": "Email",
+    "email_value": "takoubrown@gmail.com",
+    "phone_label": "Phone",
+    "phone_value": "+237 656 614 565",
+    "elsewhere": "Also on"
+  },
+  "footer": {
+    "tagline": "Built in Yaoundé. Hosted on my VPS.",
+    "uptime_label": "Uptime",
+    "last_deploy_label": "Last deploy",
+    "build_label": "Build",
+    "view_source": "View source",
+    "rights": "© 2026 Wilfried Brown DJOUTSOP TAKOU. All rights reserved."
+  },
+  "common": {
+    "read_more": "Read more",
+    "back": "Back",
+    "loading": "Loading…",
+    "scroll_hint": "Scroll"
+  }
+}

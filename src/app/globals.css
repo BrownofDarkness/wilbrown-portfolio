@@ -1,26 +1,94 @@
 @import "tailwindcss";
 
+/*
+ * Brand tokens — WilBrown
+ * Locked navy / cyan / Manrope per project_design_system memory.
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand palette */
+  --brand-navy: #03214d;
+  --brand-navy-deep: #021838;
+  --brand-navy-dark: #010c1f;
+  --brand-cyan: #00a29a;
+  --brand-cyan-soft: #5bccc4;
+  --brand-cyan-dim: #006b66;
+  --brand-anthracite: #2a2d33;
+  --brand-off-white: #fcfcfb;
+  --brand-off-white-warm: #f2eee8;
+
+  /* Semantic tokens — dark default */
+  --color-bg: var(--brand-navy-dark);
+  --color-bg-elevated: var(--brand-navy-deep);
+  --color-fg: var(--brand-off-white);
+  --color-fg-muted: #9ba4b2;
+  --color-fg-subtle: #4a5366;
+  --color-accent: var(--brand-cyan);
+  --color-accent-soft: var(--brand-cyan-soft);
+  --color-border: #18223a;
+  --color-border-subtle: #0f1828;
+}
+
+/* Light mode (optional toggle, not default) */
+[data-theme="light"] {
+  --color-bg: var(--brand-off-white-warm);
+  --color-bg-elevated: var(--brand-off-white);
+  --color-fg: var(--brand-navy-deep);
+  --color-fg-muted: #4a5366;
+  --color-fg-subtle: #8a93a6;
+  --color-accent: var(--brand-cyan-dim);
+  --color-accent-soft: var(--brand-cyan);
+  --color-border: #d9d4cc;
+  --color-border-subtle: #ebe7df;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  /* Brand color utilities (e.g. bg-navy, text-cyan) */
+  --color-navy: var(--brand-navy);
+  --color-navy-deep: var(--brand-navy-deep);
+  --color-navy-dark: var(--brand-navy-dark);
+  --color-cyan: var(--brand-cyan);
+  --color-cyan-soft: var(--brand-cyan-soft);
+  --color-cyan-dim: var(--brand-cyan-dim);
+  --color-anthracite: var(--brand-anthracite);
+  --color-off-white: var(--brand-off-white);
+  --color-off-white-warm: var(--brand-off-white-warm);
+
+  /* Semantic utilities (e.g. bg-bg, text-fg, border-border) */
+  --color-bg: var(--color-bg);
+  --color-bg-elevated: var(--color-bg-elevated);
+  --color-fg: var(--color-fg);
+  --color-fg-muted: var(--color-fg-muted);
+  --color-fg-subtle: var(--color-fg-subtle);
+  --color-accent: var(--color-accent);
+  --color-accent-soft: var(--color-accent-soft);
+  --color-border: var(--color-border);
+  --color-border-subtle: var(--color-border-subtle);
+
+  /* Typography */
+  --font-sans: var(--font-manrope);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-feature-settings: "ss01", "cv01";
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--brand-navy-dark);
 }
