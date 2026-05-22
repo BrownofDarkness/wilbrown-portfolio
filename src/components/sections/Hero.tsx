@@ -6,6 +6,7 @@ import {
   LinkedinIcon,
   XIcon,
 } from "@/components/icons/SocialIcons";
+import { HeroSceneClient } from "@/components/three/HeroSceneClient";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { SITE } from "@/lib/constants";
@@ -28,15 +29,18 @@ export async function Hero() {
       id="hero"
       className="relative flex min-h-[calc(100vh-4rem)] items-center overflow-hidden pb-20 pt-16 sm:pb-24 sm:pt-20"
     >
-      {/* Ambient cyan glows — the constellation backdrop comes from the global layer */}
+      {/* Ambient cyan glows behind the 3D scene (visible as fallback before R3F mounts) */}
       <div
         aria-hidden
-        className="absolute right-[-10%] top-1/2 -z-10 h-[60vh] w-[60vh] -translate-y-1/2 rounded-full bg-accent/[0.1] blur-3xl"
+        className="absolute right-[-10%] top-1/2 -z-20 h-[60vh] w-[60vh] -translate-y-1/2 rounded-full bg-accent/[0.08] blur-3xl"
       />
       <div
         aria-hidden
-        className="absolute left-[-10%] top-[15%] -z-10 h-[30vh] w-[30vh] rounded-full bg-accent/[0.06] blur-3xl"
+        className="absolute left-[-10%] top-[15%] -z-20 h-[30vh] w-[30vh] rounded-full bg-accent/[0.05] blur-3xl"
       />
+
+      {/* R3F Network Constellation — Phase 3 signature scene */}
+      <HeroSceneClient />
 
       <Container>
         <div className="grid gap-14 lg:grid-cols-12 lg:items-center lg:gap-10">
