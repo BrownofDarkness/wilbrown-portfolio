@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Container } from "@/components/ui/Container";
@@ -10,6 +11,7 @@ export async function TopNav() {
 
   const items = [
     { href: "#about", label: t("about") },
+    { href: "#experience", label: t("experience") },
     { href: "#work", label: t("work") },
     { href: "#stack", label: t("stack") },
     { href: "#contact", label: t("contact") },
@@ -19,15 +21,30 @@ export async function TopNav() {
     <header className="sticky top-0 z-40 border-b border-border-subtle bg-bg/80 backdrop-blur-md">
       <Container>
         <nav className="flex h-16 items-center justify-between gap-6">
-          {/* Logo / brand mark */}
-          <Link href="/" className="group inline-flex items-center gap-2.5">
-            <span
-              aria-hidden
-              className="inline-block h-2 w-2 rounded-full bg-accent transition-transform duration-300 group-hover:scale-150"
+          {/* Brand mark — WB logo, swap white/color variant per theme */}
+          <Link
+            href="/"
+            aria-label="Wilfried Brown"
+            className="group inline-flex items-center"
+          >
+            <Image
+              src="/logos/logo-white.without.png"
+              alt="Wilfried Brown"
+              width={56}
+              height={56}
+              priority
+              unoptimized
+              className="logo-dark-only h-12 w-auto transition-transform duration-300 group-hover:scale-110"
             />
-            <span className="font-mono text-sm font-semibold tracking-tight text-fg">
-              WB
-            </span>
+            <Image
+              src="/logos/logo-color-without-background.png"
+              alt="Wilfried Brown"
+              width={56}
+              height={56}
+              priority
+              unoptimized
+              className="logo-light-only h-12 w-auto transition-transform duration-300 group-hover:scale-110"
+            />
           </Link>
 
           {/* Desktop section links */}

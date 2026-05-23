@@ -47,6 +47,10 @@ CV_DJOUTOP_TAKOU_Wilfried_Brown.pdf
 # Claude Code local config
 .claude/
 
+# IDE project files (PhpStorm / WebStorm)
+.idea/
+*.iml
+
 # design references not for production
 /design/
 

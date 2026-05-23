@@ -1,6 +1,8 @@
 {
   "nav": {
+    "hero": "Top",
     "about": "About",
+    "experience": "Path",
     "work": "Work",
     "stack": "Stack",
     "contact": "Contact",
@@ -141,15 +143,31 @@
   "contact": {
     "eyebrow": "Contact",
     "title": "Let's talk.",
-    "intro": "Freelance, opportunity, or just curiosity — email is the fastest way through.",
-    "email_label": "Email",
-    "email_value": "takoubrown@gmail.com",
-    "phone_label": "Phone",
+    "intro": "Freelance, opportunity, or just curiosity — drop a message via the form, call me, or hit me on WhatsApp.",
+    "form_title": "Send me a message",
+    "phone_label": "Direct",
     "phone_value": "+237 656 614 565",
-    "elsewhere": "Also on"
+    "phone_intl": "237656614565",
+    "whatsapp_label": "WhatsApp",
+    "elsewhere": "Also on",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "subject": "Subject (optional)",
+      "message": "Message",
+      "submit": "Send",
+      "submitting": "Sending…",
+      "success": "Message sent",
+      "error": "Something went wrong. Try again or reach me directly.",
+      "errors": {
+        "name_too_short": "Name too short (2 chars minimum)",
+        "email_invalid": "Invalid email",
+        "message_too_short": "Message too short (10 chars minimum)"
+      }
+    }
   },
   "footer": {
-    "tagline": "Built in Yaoundé. Hosted on my VPS.",
+    "tagline": "Interface in spotlight. Infra in shadow.",
     "uptime_label": "Uptime",
     "last_deploy_label": "Last deploy",
     "build_label": "Build",

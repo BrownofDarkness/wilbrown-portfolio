@@ -1,4 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
+import { SectionDots } from "@/components/layout/SectionDots";
 import { About } from "@/components/sections/About";
 import { Contact } from "@/components/sections/Contact";
 import { Experience } from "@/components/sections/Experience";
@@ -22,6 +23,7 @@ export default async function HomePage({
       <Work />
       <Stack />
       <Contact />
+      <SectionDots />
     </>
   );
 }

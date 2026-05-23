@@ -1,6 +1,8 @@
 {
   "nav": {
+    "hero": "Accueil",
     "about": "À propos",
+    "experience": "Parcours",
     "work": "Travail",
     "stack": "Stack",
     "contact": "Contact",
@@ -141,15 +143,31 @@
   "contact": {
     "eyebrow": "Contact",
     "title": "On parle ?",
-    "intro": "Mandat freelance, opportunité ou simple curiosité — le canal le plus rapide reste l'email.",
-    "email_label": "Email",
-    "email_value": "takoubrown@gmail.com",
-    "phone_label": "Téléphone",
+    "intro": "Mandat freelance, opportunité ou simple curiosité — écris-moi via le formulaire, appelle, ou attrape-moi sur WhatsApp.",
+    "form_title": "Envoie-moi un message",
+    "phone_label": "Direct",
     "phone_value": "+237 656 614 565",
-    "elsewhere": "Aussi sur"
+    "phone_intl": "237656614565",
+    "whatsapp_label": "WhatsApp",
+    "elsewhere": "Aussi sur",
+    "form": {
+      "name": "Nom",
+      "email": "Email",
+      "subject": "Sujet (optionnel)",
+      "message": "Message",
+      "submit": "Envoyer",
+      "submitting": "Envoi…",
+      "success": "Message envoyé",
+      "error": "Une erreur est survenue. Réessaie ou écris-moi directement.",
+      "errors": {
+        "name_too_short": "Nom trop court (2 caractères minimum)",
+        "email_invalid": "Email invalide",
+        "message_too_short": "Message trop court (10 caractères minimum)"
+      }
+    }
   },
   "footer": {
-    "tagline": "Construit à Yaoundé. Hébergé sur mon VPS.",
+    "tagline": "Interface en lumière. Infra dans l'ombre.",
     "uptime_label": "Uptime",
     "last_deploy_label": "Dernier déploiement",
     "build_label": "Build",

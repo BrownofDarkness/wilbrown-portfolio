@@ -130,6 +130,13 @@ button:focus-visible,
   background-position: -1px -1px;
 }
 
+/* Brand logo theme switch — show white variant on dark, color variant on light.
+   Using !important to win against any framework / Image inline display style. */
+.logo-dark-only { display: inline-block !important; }
+.logo-light-only { display: none !important; }
+[data-theme="light"] .logo-dark-only { display: none !important; }
+[data-theme="light"] .logo-light-only { display: inline-block !important; }
+
 /* Scroll-cue ping animation */
 @keyframes scroll-cue {
   0%, 100% { transform: translateY(0); opacity: 0.5; }

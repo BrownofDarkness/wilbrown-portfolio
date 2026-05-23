@@ -29,8 +29,9 @@ export async function About() {
             src="/avatars/avatar-03-standing-thoughtful.jpeg"
             alt="Wilfried Brown — portrait illustré"
             fill
-            sizes="(min-width: 768px) 30vw, 100vw"
+            sizes="(min-width: 1024px) 420px, (min-width: 768px) 360px, 100vw"
             className="object-cover"
+            unoptimized
             priority
           />
         </div>
