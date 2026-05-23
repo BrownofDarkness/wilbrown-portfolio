@@ -9,6 +9,9 @@ import {
 import { HeroSceneClient } from "@/components/three/HeroSceneClient";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
+import { HeroTitleReveal } from "@/components/ui/HeroTitleReveal";
+import { MagneticWrapper } from "@/components/ui/MagneticWrapper";
+import { Reveal } from "@/components/ui/Reveal";
 import { SITE } from "@/lib/constants";
 
 const SOCIALS = [
@@ -46,96 +49,119 @@ export async function Hero() {
         <div className="grid gap-14 lg:grid-cols-12 lg:items-center lg:gap-10">
           {/* LEFT: content */}
           <div className="lg:col-span-7">
-            <div className="flex items-baseline gap-3">
-              <span className="font-mono text-xs uppercase tracking-[0.25em] text-fg-subtle">
-                [ 00 ]
-              </span>
-              <span className="h-px w-8 bg-border-subtle" aria-hidden />
-              <span className="font-mono text-xs uppercase tracking-[0.25em] text-fg-muted">
-                {t("intro_label")}
-              </span>
-            </div>
+            <Reveal mode="mount" delay={0} y={16}>
+              <div className="flex items-baseline gap-3">
+                <span className="font-mono text-xs uppercase tracking-[0.25em] text-fg-subtle">
+                  [ 00 ]
+                </span>
+                <span
+                  className="h-px w-8 bg-border-subtle"
+                  aria-hidden
+                />
+                <span className="font-mono text-xs uppercase tracking-[0.25em] text-fg-muted">
+                  {t("intro_label")}
+                </span>
+              </div>
+            </Reveal>
 
-            <p className="mt-6 font-mono text-xs uppercase tracking-[0.3em] text-accent">
-              {t("role_label")}
-            </p>
+            <Reveal mode="mount" delay={0.08} y={16}>
+              <p className="mt-6 font-mono text-xs uppercase tracking-[0.3em] text-accent">
+                {t("role_label")}
+              </p>
+            </Reveal>
 
-            <h1 className="mt-6 font-sans font-bold leading-[0.9] tracking-[-0.04em] text-fg text-[clamp(3.5rem,11vw,8rem)]">
-              {t("name.first")}
-              <br />
-              <span className="text-accent">{t("name.last")}.</span>
-            </h1>
+            <HeroTitleReveal
+              firstName={t("name.first")}
+              lastName={t("name.last")}
+              className="mt-6 font-sans font-bold leading-[0.9] tracking-[-0.04em] text-fg text-[clamp(3.5rem,11vw,8rem)]"
+            />
 
-            <div className="mt-10 max-w-xl text-base leading-[1.6] text-fg sm:text-lg">
-              <p>{t("accroche.line1")}</p>
-              <p>{t("accroche.line2")}</p>
-              <p className="text-fg-muted">{t("accroche.line3")}</p>
-            </div>
+            <Reveal mode="mount" delay={0.7} y={20}>
+              <div className="mt-10 max-w-xl text-base leading-[1.6] text-fg sm:text-lg">
+                <p>{t("accroche.line1")}</p>
+                <p>{t("accroche.line2")}</p>
+                <p className="text-fg-muted">{t("accroche.line3")}</p>
+              </div>
+            </Reveal>
 
-            <p className="mt-6 max-w-xl font-mono text-xs leading-relaxed text-fg-subtle">
-              {t("bio")}{" "}
-              <span className="text-fg-muted">·</span> {t("location")}
-            </p>
+            <Reveal mode="mount" delay={0.85} y={16}>
+              <p className="mt-6 max-w-xl font-mono text-xs leading-relaxed text-fg-subtle">
+                {t("bio")}{" "}
+                <span className="text-fg-muted">·</span> {t("location")}
+              </p>
+            </Reveal>
 
-            <div className="mt-10 flex flex-wrap items-center gap-3">
-              <Button href="#work" variant="primary">
-                {t("cta_primary")} →
-              </Button>
-              <Button href="#contact" variant="ghost">
-                {t("cta_secondary")}
-              </Button>
-            </div>
+            <Reveal mode="mount" delay={1} y={16}>
+              <div className="mt-10 flex flex-wrap items-center gap-3">
+                <MagneticWrapper strength={0.3}>
+                  <Button href="#work" variant="primary">
+                    {t("cta_primary")} →
+                  </Button>
+                </MagneticWrapper>
+                <MagneticWrapper strength={0.3}>
+                  <Button href="#contact" variant="ghost">
+                    {t("cta_secondary")}
+                  </Button>
+                </MagneticWrapper>
+              </div>
+            </Reveal>
 
-            <div className="mt-10 flex items-center gap-3">
-              {SOCIALS.map(({ href, Icon, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-fg-muted transition-colors hover:border-accent hover:text-accent"
-                >
-                  <Icon size={14} />
-                </a>
-              ))}
-            </div>
+            <Reveal mode="mount" delay={1.15} y={12} stagger={0.06}>
+              <div className="mt-10 flex items-center gap-3">
+                {SOCIALS.map(({ href, Icon, label }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-fg-muted transition-colors hover:border-accent hover:text-accent"
+                  >
+                    <Icon size={14} />
+                  </a>
+                ))}
+              </div>
+            </Reveal>
           </div>
 
           {/* RIGHT: avatar + numbered stack */}
           <div className="hidden lg:col-span-5 lg:block">
-            <div className="relative">
-              <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-border-subtle bg-bg-elevated">
-                <Image
-                  src="/avatars/avatar-01-hero.jpeg"
-                  alt="Wilfried Brown — portrait illustré"
-                  fill
-                  sizes="(min-width: 1024px) 40vw, 100vw"
-                  className="object-cover"
-                  priority
-                />
-                {/* Subtle cyan inner shadow for cohesion with brand */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-accent/10"
-                />
-              </div>
+            <Reveal mode="mount" delay={0.35} y={36}>
+              <div className="relative">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-border-subtle bg-bg-elevated">
+                  <Image
+                    src="/avatars/avatar-01-hero.jpeg"
+                    alt="Wilfried Brown — portrait illustré"
+                    fill
+                    sizes="(min-width: 1024px) 40vw, 100vw"
+                    className="object-cover"
+                    priority
+                  />
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-accent/10"
+                  />
+                </div>
 
-              <ul className="mt-8 space-y-3">
-                {stack.map((item) => (
-                  <li
-                    key={item.number}
-                    className="flex items-center gap-4 font-mono text-xs"
-                  >
-                    <span className="w-6 text-accent">{item.number}</span>
-                    <span className="h-px flex-1 bg-border-subtle" aria-hidden />
-                    <span className="uppercase tracking-[0.15em] text-fg-muted">
-                      {item.label}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                <ul className="mt-8 space-y-3">
+                  {stack.map((item) => (
+                    <li
+                      key={item.number}
+                      className="flex items-center gap-4 font-mono text-xs"
+                    >
+                      <span className="w-6 text-accent">{item.number}</span>
+                      <span
+                        className="h-px flex-1 bg-border-subtle"
+                        aria-hidden
+                      />
+                      <span className="uppercase tracking-[0.15em] text-fg-muted">
+                        {item.label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
           </div>
         </div>
       </Container>

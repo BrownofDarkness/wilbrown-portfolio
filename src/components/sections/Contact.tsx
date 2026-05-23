@@ -5,6 +5,8 @@ import {
   LinkedinIcon,
   XIcon,
 } from "@/components/icons/SocialIcons";
+import { MagneticWrapper } from "@/components/ui/MagneticWrapper";
+import { Reveal } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
 import { SITE } from "@/lib/constants";
 
@@ -20,23 +22,27 @@ export async function Contact() {
 
   return (
     <Section id="contact">
-      <h2 className="font-sans text-4xl font-bold leading-[1.05] tracking-tight text-accent sm:text-5xl md:text-6xl">
-        {t("eyebrow")}
-      </h2>
-      <p className="mt-4 max-w-2xl text-base text-fg-muted sm:text-lg">
-        {t("title")}
-      </p>
-      <p className="mt-3 max-w-2xl text-sm text-fg-subtle">
-        {t("intro")}
-      </p>
+      <Reveal>
+        <h2 className="font-sans text-4xl font-bold leading-[1.05] tracking-tight text-accent sm:text-5xl md:text-6xl">
+          {t("eyebrow")}
+        </h2>
+        <p className="mt-4 max-w-2xl text-base text-fg-muted sm:text-lg">
+          {t("title")}
+        </p>
+        <p className="mt-3 max-w-2xl text-sm text-fg-subtle">
+          {t("intro")}
+        </p>
+      </Reveal>
 
       <div className="mt-16">
-        <a
-          href={`mailto:${t("email_value")}`}
-          className="inline-block break-all font-sans text-2xl text-accent underline decoration-2 underline-offset-8 transition-colors hover:text-accent-soft sm:text-3xl md:text-4xl"
-        >
-          {t("email_value")}
-        </a>
+        <MagneticWrapper strength={0.18} range={180}>
+          <a
+            href={`mailto:${t("email_value")}`}
+            className="inline-block break-all font-sans text-2xl text-accent underline decoration-2 underline-offset-8 transition-colors hover:text-accent-soft sm:text-3xl md:text-4xl"
+          >
+            {t("email_value")}
+          </a>
+        </MagneticWrapper>
         <p className="mt-4 font-mono text-sm text-fg-muted">
           {t("phone_value")}
         </p>

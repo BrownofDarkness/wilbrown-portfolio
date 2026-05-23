@@ -10,6 +10,7 @@ import {
 import { BlendFunction } from "postprocessing";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
+import { CameraRig } from "./CameraRig";
 import { CurlField } from "./CurlField";
 import { NetworkConstellation } from "./NetworkConstellation";
 
@@ -68,6 +69,9 @@ export function HeroScene() {
       <fog attach="fog" args={["#010c1f", 4, 14]} />
 
       <ambientLight intensity={0.4} />
+
+      {/* Scroll-driven camera dolly */}
+      <CameraRig />
 
       <ParallaxGroup>
         {/* Tier 2 — 2000 small particles in a pseudo curl-noise flowfield,

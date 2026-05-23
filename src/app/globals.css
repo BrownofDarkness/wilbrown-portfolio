@@ -35,8 +35,10 @@
   --ui-bg: var(--brand-off-white-warm);
   --ui-bg-elevated: var(--brand-off-white);
   --ui-fg: var(--brand-navy-deep);
-  --ui-fg-muted: #4a5366;
-  --ui-fg-subtle: #8a93a6;
+  /* Bumped from #4a5366 → #3a4254 (contrast 7.1:1 on #f2eee8, was ~5.2:1) */
+  --ui-fg-muted: #3a4254;
+  /* Bumped from #8a93a6 → #5e6878 to clear WCAG AA 4.5:1 on the warm bg */
+  --ui-fg-subtle: #5e6878;
   --ui-accent: var(--brand-cyan-dim);
   --ui-accent-soft: var(--brand-cyan);
   --ui-border: #d9d4cc;
@@ -94,6 +96,22 @@ body {
   color: var(--ui-bg);
 }
 
+/* Global focus-visible — accessible keyboard navigation, brand-tinted ring.
+   :focus-visible only triggers on keyboard focus, not mouse clicks, so we get
+   clean visuals during mouse use and proper a11y on Tab. */
+:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--ui-accent);
+  outline-offset: 3px;
+}
+
 /* Subtle ambient grid — used on Hero, flips with theme via --ui-fg */
 .bg-grid {
   background-image:
@@ -110,4 +128,41 @@ body {
 }
 .animate-scroll-cue {
   animation: scroll-cue 2s ease-in-out infinite;
+}
+
+/* Constellation background — Option D: keep the static SVG global but breathe
+   life into it via pure CSS keyframes. Zero GPU cost, brand ambient maintained. */
+@keyframes constellation-drift {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(14px, -10px); }
+  50% { transform: translate(-8px, 8px); }
+  75% { transform: translate(-12px, -6px); }
+}
+@keyframes constellation-star-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+@keyframes constellation-line-fade {
+  0%, 100% { opacity: 0; }
+  45%, 55% { opacity: 0.55; }
+}
+
+.constellation-drift {
+  animation: constellation-drift 55s ease-in-out infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+.constellation-pulse {
+  animation: constellation-star-pulse 4s ease-in-out infinite;
+}
+.constellation-line-fade {
+  animation: constellation-line-fade 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .constellation-drift,
+  .constellation-pulse,
+  .constellation-line-fade {
+    animation: none !important;
+  }
 }

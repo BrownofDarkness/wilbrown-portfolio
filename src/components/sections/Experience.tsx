@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { Reveal } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
 import { Tag } from "@/components/ui/Tag";
 
@@ -19,15 +20,18 @@ export async function Experience() {
 
   return (
     <Section id="experience">
-      <h2 className="font-sans text-4xl font-bold leading-[1.05] tracking-tight text-accent sm:text-5xl md:text-6xl">
-        {t("eyebrow")}
-      </h2>
-      <p className="mt-4 max-w-2xl text-base text-fg-muted sm:text-lg">
-        {t("title")}
-      </p>
+      <Reveal>
+        <h2 className="font-sans text-4xl font-bold leading-[1.05] tracking-tight text-accent sm:text-5xl md:text-6xl">
+          {t("eyebrow")}
+        </h2>
+        <p className="mt-4 max-w-2xl text-base text-fg-muted sm:text-lg">
+          {t("title")}
+        </p>
+      </Reveal>
 
-      <ol className="mt-16 space-y-12 sm:space-y-14">
-        {ENTRIES.map((key) => {
+      <Reveal stagger={0.08} y={24}>
+        <ol className="mt-16 space-y-12 sm:space-y-14">
+          {ENTRIES.map((key) => {
           const isCurrent = CURRENT_KEYS.includes(key);
           return (
             <li
@@ -58,7 +62,8 @@ export async function Experience() {
             </li>
           );
         })}
-      </ol>
+        </ol>
+      </Reveal>
     </Section>
   );
 }

@@ -125,19 +125,62 @@ export function ConstellationBg({
       preserveAspectRatio="xMidYMid slice"
       className={cn("absolute inset-0 h-full w-full", className)}
     >
-      <g fill={starColor}>
-        {STARS.map((s, i) => (
-          <circle key={`s-${i}`} cx={s.x} cy={s.y} r={s.r} />
-        ))}
-      </g>
-      <g stroke={lineColor} strokeWidth="0.5" fill="none" opacity="0.45">
-        {LINES.map((l, i) => {
-          const a = STARS[l.a];
-          const b = STARS[l.b];
-          return (
-            <line key={`l-${i}`} x1={a.x} y1={a.y} x2={b.x} y2={b.y} />
-          );
-        })}
+      {/* Outer drift group — entire field translates subtly over 55s */}
+      <g className="constellation-drift">
+        <g fill={starColor}>
+          {STARS.map((s, i) => {
+            // ~1/4 of the stars pulse (~12 of 50) — calmer ambient than half
+            const shouldPulse = i % 4 === 0;
+            const delay = (i * 0.31) % 5;
+            const duration = 3 + (i % 4);
+            return (
+              <circle
+                key={`s-${i}`}
+                cx={s.x}
+                cy={s.y}
+                r={s.r}
+                className={shouldPulse ? "constellation-pulse" : undefined}
+                style={
+                  shouldPulse
+                    ? {
+                        animationDelay: `${delay}s`,
+                        animationDuration: `${duration}s`,
+                      }
+                    : undefined
+                }
+              />
+            );
+          })}
+        </g>
+        <g stroke={lineColor} strokeWidth="0.5" fill="none">
+          {LINES.map((l, i) => {
+            const a = STARS[l.a];
+            const b = STARS[l.b];
+            // ~1/5 of the lines fade in/out probabilistically (calmer ambient)
+            const shouldFade = i % 5 === 0;
+            const delay = (i * 0.73) % 6;
+            const duration = 5 + (i % 4);
+            return (
+              <line
+                key={`l-${i}`}
+                x1={a.x}
+                y1={a.y}
+                x2={b.x}
+                y2={b.y}
+                opacity={shouldFade ? undefined : 0.45}
+                className={shouldFade ? "constellation-line-fade" : undefined}
+                style={
+                  shouldFade
+                    ? {
+                        animationDelay: `${delay}s`,
+                        animationDuration: `${duration}s`,
+                      }
+                    : undefined
+                }
+              />
+            );
+          })}
+        </g>
       </g>
     </svg>
   );
