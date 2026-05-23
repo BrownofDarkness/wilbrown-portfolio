@@ -47,7 +47,11 @@ function ParallaxGroup({ children }: { children: ReactNode }) {
   return <group ref={groupRef}>{children}</group>;
 }
 
-export function HeroScene() {
+type Props = {
+  frameloop?: "always" | "never" | "demand";
+};
+
+export function HeroScene({ frameloop = "always" }: Props) {
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -62,7 +66,8 @@ export function HeroScene() {
     <Canvas
       camera={{ position: [0, 0, 6], fov: 45 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-      dpr={[1, 2]}
+      dpr={[1, 1.5]}
+      frameloop={frameloop}
       style={{ background: "transparent" }}
     >
       {/* Atmospheric depth: navy-dark fog fading the back particles */}

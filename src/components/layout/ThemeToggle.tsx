@@ -18,10 +18,14 @@ export function ThemeToggle() {
   const toggle = () => {
     const next: Theme = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
+    // Cookie — read server-side on next request so the initial HTML already
+    // has the right data-theme. No client-side script needed, no FOUC.
+    document.cookie = `theme=${next}; path=/; max-age=31536000; SameSite=Lax`;
+    // Keep localStorage as offline backup (some browsers strip cookies)
     try {
       localStorage.setItem("theme", next);
     } catch {
-      /* localStorage might be blocked; degrade gracefully */
+      /* ignore */
     }
     setTheme(next);
   };

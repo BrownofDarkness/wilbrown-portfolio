@@ -4,7 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 
-const PARTICLE_COUNT = 2000;
+const PARTICLE_COUNT = 1500;
 
 // Pseudo curl-noise via crossed sin/cos. Cheap on GPU, divergence-free-ish,
 // produces visible swirling currents — visually close to a real curl noise

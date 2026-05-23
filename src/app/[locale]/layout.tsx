@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { Manrope, Geist_Mono } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
@@ -21,8 +22,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
   display: "swap",
 });
-
-const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;}}catch(e){}})();`;
 
 export const metadata: Metadata = {
   title: {
@@ -60,15 +59,20 @@ export default async function LocaleLayout({
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
 
+  // Read theme preference from cookie (set by ThemeToggle on click). No inline
+  // <script> needed → no React 19 warning, no FOUC, no client-side flash.
+  const cookieStore = await cookies();
+  const theme =
+    cookieStore.get("theme")?.value === "light" ? "light" : "dark";
+
   return (
     <html
       lang={locale}
-      data-theme="dark"
+      data-theme={theme}
       className={`${manrope.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="relative flex min-h-full flex-col bg-bg text-fg font-sans">
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {/* Global constellation backdrop — sits behind everything, theme-tinted */}
         <div className="pointer-events-none fixed inset-0 -z-50 text-accent opacity-[0.22]">
           <ConstellationBg />

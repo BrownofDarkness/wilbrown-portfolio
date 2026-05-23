@@ -22,13 +22,16 @@ export async function About() {
       </Reveal>
 
       <div className="mt-16 grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:gap-16">
-        <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-bg-elevated">
+        {/* Mobile: fixed height (aspect-ratio on grid items + fill image is
+            fragile on some mobile browsers, esp. high-DPR). Desktop: aspect. */}
+        <div className="relative h-[480px] w-full overflow-hidden rounded-2xl bg-bg-elevated md:h-auto md:aspect-[3/4]">
           <Image
             src="/avatars/avatar-03-standing-thoughtful.jpeg"
             alt="Wilfried Brown — portrait illustré"
             fill
             sizes="(min-width: 768px) 30vw, 100vw"
             className="object-cover"
+            priority
           />
         </div>
 

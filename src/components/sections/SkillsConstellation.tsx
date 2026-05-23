@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   CONNECTIONS,
@@ -16,6 +16,20 @@ type Filter = "all" | SkillCategory;
 const FILTERS: Filter[] = ["all", "mobile", "backend", "infra", "tools"];
 
 const SKILL_BY_ID = Object.fromEntries(SKILLS.map((s) => [s.id, s]));
+const SKILL_INDEX = Object.fromEntries(SKILLS.map((s, i) => [s.id, i]));
+
+// Drift parameters in pixels (applied via transform on the node wrappers)
+const DRIFT_AMP_X = 14; // px horizontal
+const DRIFT_AMP_Y = 10; // px vertical
+const DRIFT_SPEED = 0.35; // base radians/sec
+const DRIFT_SPEED_Y = 0.27;
+
+function offsetFor(idx: number, t: number) {
+  return {
+    dx: Math.sin(t * DRIFT_SPEED + idx * 0.9) * DRIFT_AMP_X,
+    dy: Math.cos(t * DRIFT_SPEED_Y + idx * 1.7) * DRIFT_AMP_Y,
+  };
+}
 
 function isVisible(skill: Skill, filter: Filter) {
   return filter === "all" || skill.category === filter;
@@ -31,6 +45,64 @@ export function SkillsConstellation() {
   const tCount = useTranslations("stack");
   const [filter, setFilter] = useState<Filter>("all");
   const [hovered, setHovered] = useState<string | null>(null);
+
+  // Each node has a wrapper div that owns positioning + drift transform.
+  // The inner button handles hover/scale transitions separately, so RAF
+  // doesn't fight CSS transition-all.
+  const wrapperRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const lineRefs = useRef<(SVGLineElement | null)[]>([]);
+
+  // Continuous drift driven by RAF. Wrapper transform is mutated imperatively
+  // (no React re-render per frame, no layout reflow — pure GPU composite).
+  // Lines are SVG attribute updates inside the same viewBox, also cheap.
+  useEffect(() => {
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (reduced) return;
+
+    let raf = 0;
+    const start = performance.now();
+
+    const tick = () => {
+      const time = (performance.now() - start) / 1000;
+
+      // Drift the wrapper via transform (no left/top layout cost)
+      for (const skill of SKILLS) {
+        const el = wrapperRefs.current[skill.id];
+        if (!el) continue;
+        const { dx, dy } = offsetFor(SKILL_INDEX[skill.id], time);
+        // -50% centers the node on its base point; px deltas drift around it
+        el.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+      }
+
+      // Update SVG line endpoints — these are in viewBox units (0-100),
+      // so we convert px drift to % of nominal container width assuming
+      // the SVG fills its parent. Approximate but consistent with nodes.
+      for (let i = 0; i < CONNECTIONS.length; i++) {
+        const line = lineRefs.current[i];
+        if (!line) continue;
+        const [fromId, toId] = CONNECTIONS[i];
+        const from = SKILL_BY_ID[fromId];
+        const to = SKILL_BY_ID[toId];
+        if (!from || !to) continue;
+        const off1 = offsetFor(SKILL_INDEX[fromId], time);
+        const off2 = offsetFor(SKILL_INDEX[toId], time);
+        // Convert px drift to viewBox %. Container is ~800px wide on desktop
+        // → 1px ≈ 0.125 viewBox units. Empirical, matches node motion well.
+        const pxToVb = 0.12;
+        line.setAttribute("x1", String(from.x + off1.dx * pxToVb));
+        line.setAttribute("y1", String(from.y + off1.dy * pxToVb));
+        line.setAttribute("x2", String(to.x + off2.dx * pxToVb));
+        line.setAttribute("y2", String(to.y + off2.dy * pxToVb));
+      }
+
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   const visibleCount = SKILLS.filter((s) => isVisible(s, filter)).length;
 
@@ -88,6 +160,9 @@ export function SkillsConstellation() {
             return (
               <line
                 key={i}
+                ref={(el) => {
+                  lineRefs.current[i] = el;
+                }}
                 x1={from.x}
                 y1={from.y}
                 x2={to.x}
@@ -109,56 +184,73 @@ export function SkillsConstellation() {
           })}
         </svg>
 
-        {/* Skill nodes */}
+        {/* Skill nodes: wrapper owns position + RAF transform; button owns
+            hover/scale transitions. No transition-all interference. */}
         {SKILLS.map((skill) => {
           const visible = isVisible(skill, filter);
           const isHovered = hovered === skill.id;
           return (
-            <button
+            <div
               key={skill.id}
-              type="button"
-              onMouseEnter={() => setHovered(skill.id)}
-              onFocus={() => setHovered(skill.id)}
-              onBlur={() => setHovered(null)}
-              aria-label={skill.label}
+              ref={(el) => {
+                wrapperRefs.current[skill.id] = el;
+              }}
               className={cn(
-                "group absolute flex flex-col items-center gap-2 transition-all duration-300",
-                "-translate-x-1/2 -translate-y-1/2",
-                visible
-                  ? "opacity-100"
-                  : "pointer-events-none opacity-15 grayscale",
-                isHovered ? "z-20 scale-110" : "z-10 scale-100",
+                "absolute",
+                isHovered ? "z-20" : "z-10",
               )}
-              style={{ left: `${skill.x}%`, top: `${skill.y}%` }}
+              style={{
+                left: `${skill.x}%`,
+                top: `${skill.y}%`,
+                // Initial transform centers the node; RAF will overwrite with
+                // the same -50% offset plus drift deltas
+                transform: "translate(-50%, -50%)",
+                willChange: "transform",
+              }}
             >
-              <span
+              <button
+                type="button"
+                onMouseEnter={() => setHovered(skill.id)}
+                onFocus={() => setHovered(skill.id)}
+                onBlur={() => setHovered(null)}
+                aria-label={skill.label}
                 className={cn(
-                  "flex h-12 w-12 items-center justify-center rounded-xl border bg-bg-elevated p-2 transition-all duration-300",
-                  isHovered
-                    ? "border-accent shadow-[0_0_24px_-4px] shadow-accent/40"
-                    : "border-border-subtle",
+                  "group flex flex-col items-center gap-2 transition-transform duration-300",
+                  visible
+                    ? "opacity-100"
+                    : "pointer-events-none opacity-15 grayscale",
+                  isHovered ? "scale-110" : "scale-100",
                 )}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={deviconUrl(skill)}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  width={32}
-                  height={32}
-                  className="h-full w-full object-contain"
-                />
-              </span>
-              <span
-                className={cn(
-                  "font-mono text-[10px] uppercase tracking-[0.1em] transition-colors",
-                  isHovered ? "text-accent" : "text-fg-muted",
-                )}
-              >
-                {skill.label}
-              </span>
-            </button>
+                <span
+                  className={cn(
+                    "flex h-12 w-12 items-center justify-center rounded-xl border bg-bg-elevated p-2 transition-colors duration-300",
+                    isHovered
+                      ? "border-accent shadow-[0_0_24px_-4px] shadow-accent/40"
+                      : "border-border-subtle",
+                  )}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={deviconUrl(skill)}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    width={32}
+                    height={32}
+                    className="h-full w-full object-contain"
+                  />
+                </span>
+                <span
+                  className={cn(
+                    "font-mono text-[10px] uppercase tracking-[0.1em] transition-colors",
+                    isHovered ? "text-accent" : "text-fg-muted",
+                  )}
+                >
+                  {skill.label}
+                </span>
+              </button>
+            </div>
           );
         })}
       </div>
