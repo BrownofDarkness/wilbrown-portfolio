@@ -10,6 +10,7 @@ import {
 import { BlendFunction } from "postprocessing";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
+import { CurlField } from "./CurlField";
 import { NetworkConstellation } from "./NetworkConstellation";
 
 /*
@@ -69,6 +70,11 @@ export function HeroScene() {
       <ambientLight intensity={0.4} />
 
       <ParallaxGroup>
+        {/* Tier 2 — 2000 small particles in a pseudo curl-noise flowfield,
+            cursor attractor brings them closer when hovered. The "depth"
+            layer of the constellation. */}
+        <CurlField />
+        {/* The 70 "bright nodes" + connection lines stay on top */}
         <NetworkConstellation />
       </ParallaxGroup>
 
