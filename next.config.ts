@@ -2,7 +2,15 @@ import createMDX from "@next/mdx";
 import createNextIntlPlugin from "next-intl/plugin";
 import type { NextConfig } from "next";
 
-const withMDX = createMDX({});
+const withMDX = createMDX({
+  options: {
+    // Parse YAML frontmatter as a real AST node so it's not rendered as
+    // text. gray-matter (used in src/lib/projects.ts) reads it separately
+    // for routing/SEO/header metadata. Plugin reference passed as a string
+    // so Turbopack can serialize it across processes.
+    remarkPlugins: [["remark-frontmatter", ["yaml"]]],
+  },
+});
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
