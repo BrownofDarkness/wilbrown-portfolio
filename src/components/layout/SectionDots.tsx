@@ -9,6 +9,8 @@ const SECTIONS = [
   "about",
   "experience",
   "work",
+  "showcase",
+  "events",
   "stack",
   "contact",
 ] as const;
@@ -30,6 +32,8 @@ export function SectionDots() {
     about: t("about"),
     experience: t("experience"),
     work: t("work"),
+    showcase: t("showcase"),
+    events: t("events"),
     stack: t("stack"),
     contact: t("contact"),
   };

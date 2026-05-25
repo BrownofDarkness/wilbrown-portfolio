@@ -51,6 +51,19 @@ CV_DJOUTOP_TAKOU_Wilfried_Brown.pdf
 .idea/
 *.iml
 
+# Phase 4 — Showcase backend
+# SQLite database (lives on VPS filesystem; backup via cron)
+/data/
+
+# User-uploaded showcase images (resized via sharp at upload time)
+/public/showcase/uploads/
+
+# User-uploaded event photos (resized via sharp, organized per slug folder)
+/public/events/uploads/
+
+# Admin password hash file (preferred over env var to dodge dotenv $ interpolation)
+/.auth/
+
 # design references not for production
 /design/
 

@@ -4,6 +4,8 @@
     "about": "À propos",
     "experience": "Parcours",
     "work": "Travail",
+    "showcase": "Showcase",
+    "events": "Évènements",
     "stack": "Stack",
     "contact": "Contact",
     "language": "EN"
@@ -125,6 +127,59 @@
         "client": "Projet personnel · 2025",
         "summary": "Intégrations Telegram bot + Llama (Groq) via n8n sur VPS personnel. Triggers, nodes HTTP, expressions, credentials."
       }
+    }
+  },
+  "showcase": {
+    "eyebrow": "Showcase",
+    "title": "Tout ce que j'ai bâti — petit ou grand.",
+    "intro": "Apps, sites, outils, expérimentations, workflows. Les case studies au-dessus racontent en profondeur ; ici c'est la collection brute.",
+    "empty": "Rien pour l'instant. Reviens bientôt — j'ajoute au fil de l'eau via mon admin.",
+    "featured": "Featured",
+    "filter_all": "Tout",
+    "types": {
+      "app": "App",
+      "website": "Site web",
+      "tool": "Outil",
+      "library": "Bibliothèque",
+      "experiment": "Expérimentation",
+      "workflow": "Workflow"
+    },
+    "links": {
+      "repo": "GitHub",
+      "live": "Live",
+      "play_store": "Google Play",
+      "app_store": "App Store"
+    },
+    "modal": {
+      "close": "Fermer",
+      "visit": "Visiter"
+    }
+  },
+  "events": {
+    "eyebrow": "Évènements",
+    "title": "Conférences, workshops, meetups.",
+    "intro": "Les moments où je sors du clavier pour rencontrer la communauté tech — participant, speaker, organisateur ou mentor.",
+    "page_title": "Tous les évènements",
+    "back_home": "Retour à l'accueil",
+    "empty": "Pas encore d'évènements ajoutés. À venir.",
+    "featured": "Featured",
+    "view_event": "Voir l'évènement",
+    "view_gallery": "Voir la galerie",
+    "view_all": "Voir tous les évènements ({count})",
+    "total_count": "{count, plural, =1 {1 évènement} other {# évènements}}",
+    "no_photos": "Pas de photos",
+    "photos_count": "{count, plural, =1 {1 photo} other {# photos}}",
+    "modal": {
+      "close": "Fermer",
+      "prev": "Précédente",
+      "next": "Suivante",
+      "counter": "{current} / {total}"
+    },
+    "roles": {
+      "attendee": "Participant",
+      "speaker": "Speaker",
+      "organizer": "Organisateur",
+      "mentor": "Mentor"
     }
   },
   "stack": {

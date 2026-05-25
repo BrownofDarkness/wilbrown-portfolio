@@ -4,6 +4,8 @@
     "about": "About",
     "experience": "Path",
     "work": "Work",
+    "showcase": "Showcase",
+    "events": "Events",
     "stack": "Stack",
     "contact": "Contact",
     "language": "FR"
@@ -125,6 +127,59 @@
         "client": "Personal project · 2025",
         "summary": "Telegram bot + Llama (Groq) integrations via n8n on personal VPS. Triggers, HTTP nodes, expressions, credentials."
       }
+    }
+  },
+  "showcase": {
+    "eyebrow": "Showcase",
+    "title": "Everything I've built — big or small.",
+    "intro": "Apps, websites, tools, experiments, workflows. The case studies above tell the deep stories; this is the raw collection.",
+    "empty": "Nothing here yet. Check back soon — I add entries through my admin as I ship.",
+    "featured": "Featured",
+    "filter_all": "All",
+    "types": {
+      "app": "App",
+      "website": "Website",
+      "tool": "Tool",
+      "library": "Library",
+      "experiment": "Experiment",
+      "workflow": "Workflow"
+    },
+    "links": {
+      "repo": "GitHub",
+      "live": "Live",
+      "play_store": "Google Play",
+      "app_store": "App Store"
+    },
+    "modal": {
+      "close": "Close",
+      "visit": "Visit"
+    }
+  },
+  "events": {
+    "eyebrow": "Events",
+    "title": "Conferences, workshops, meetups.",
+    "intro": "When I step away from the keyboard to meet the tech community — attendee, speaker, organizer, or mentor.",
+    "page_title": "All events",
+    "back_home": "Back home",
+    "empty": "No events added yet. Coming soon.",
+    "featured": "Featured",
+    "view_event": "View event",
+    "view_gallery": "View gallery",
+    "view_all": "View all events ({count})",
+    "total_count": "{count, plural, =1 {1 event} other {# events}}",
+    "no_photos": "No photos",
+    "photos_count": "{count, plural, =1 {1 photo} other {# photos}}",
+    "modal": {
+      "close": "Close",
+      "prev": "Previous",
+      "next": "Next",
+      "counter": "{current} / {total}"
+    },
+    "roles": {
+      "attendee": "Attendee",
+      "speaker": "Speaker",
+      "organizer": "Organizer",
+      "mentor": "Mentor"
     }
   },
   "stack": {

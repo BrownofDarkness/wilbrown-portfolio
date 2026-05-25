@@ -13,6 +13,8 @@ export async function TopNav() {
     { href: "#about", label: t("about") },
     { href: "#experience", label: t("experience") },
     { href: "#work", label: t("work") },
+    { href: "#showcase", label: t("showcase") },
+    { href: "#events", label: t("events") },
     { href: "#stack", label: t("stack") },
     { href: "#contact", label: t("contact") },
   ];
