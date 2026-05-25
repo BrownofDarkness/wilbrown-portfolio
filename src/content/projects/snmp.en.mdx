@@ -1,0 +1,51 @@
+---
+slug: "snmp"
+order: 2
+title: "SNMP observability pipeline — Zabbix to Elasticsearch"
+client: "IBAASS Labs"
+period: "Jan 2024 — Feb 2025"
+role: "Python Developer · Observability"
+summary: "Custom Python SNMP collector, orchestrated Zabbix → Kafka → Logstash → Elasticsearch → Kibana, inter-worker load balancing. Production pipeline on heterogeneous network equipment."
+tags: ["Observability", "Python", "Kafka", "ELK"]
+stack: ["Python", "Zabbix", "Apache Kafka", "Logstash", "Elasticsearch", "Kibana", "PySNMP", "Docker"]
+confidential: false
+locale: "en"
+---
+
+During my time at IBAASS, I designed and operated an observability pipeline to collect, process, and index SNMP metrics coming from heterogeneous network equipment. The challenge: turn a raw stream of SNMP OIDs into actionable dashboards, with a scalable and fault-tolerant architecture.
+
+## Context
+
+The team was monitoring a fleet of network devices (switches, routers, APs) exposing their metrics through SNMP. Zabbix already handled collection, but the data stayed trapped inside Zabbix itself — no cross-device correlation, no usable long-term history. We wanted to ship these metrics into Elasticsearch so we could cross them with application logs and build rich Kibana dashboards.
+
+## Architecture
+
+The pipeline in 5 stages:
+
+1. **SNMP collection** by Zabbix on each device (polling at configurable intervals)
+2. **Zabbix → Kafka export** through a custom Python connector (consumes Zabbix history API, produces to Kafka topics by metric category)
+3. **Kafka** as a fault-tolerant buffer/queue (3 brokers, partitioning by device-id for guaranteed ordering)
+4. **Logstash** as Kafka consumer → transformation, enrichment (geo, device tags), parsing
+5. **Elasticsearch** as the final index + **Kibana** as the visualization layer
+
+<TechStack items={["Python 3.11", "PySNMP", "Zabbix API", "Apache Kafka", "Logstash", "Elasticsearch 8", "Kibana", "Docker Compose"]} />
+
+**Kafka partitioning by device-id** guarantees message ordering for each device (essential for cumulative SNMP counters). **Load balancing** between Logstash workers happens naturally through Kafka consumer groups — each worker takes one partition.
+
+## Outcomes
+
+- **Production pipeline** running on 80+ network devices, indexing ~2M metric points per day
+- **End-to-end latency < 30 seconds** between SNMP poll and visibility in Kibana
+- **Fault tolerance**: a Logstash worker that crashes loses no messages thanks to Kafka offsets
+- **Kibana dashboards** for: saturated interfaces, downed devices, traffic anomalies, top-N consumers
+- **Custom Python code** versioned, tested, documented for the Zabbix → Kafka layer
+
+<Callout type="info" title="Why not Telegraf or Prometheus?">
+Telegraf SNMP works well but doesn't handle inter-system buffering as gracefully as Kafka. Prometheus is pull-based and doesn't match the existing Zabbix model. Keeping Zabbix as the primary collector and routing to Elastic via Kafka was the compromise that respected legacy while unlocking new use cases.
+</Callout>
+
+## Lessons
+
+- **Kafka justifies its complexity when there are more than 2 downstream systems.** For a single consumer, a Redis buffer would have been enough. With Logstash plus additional analytics consumers planned, Kafka made sense.
+- **PySNMP is powerful but treacherous.** Vendor-specific MIBs require mapping work that's never documented. I built up a small library of translated MIBs as I encountered new devices.
+- **Kibana shines when the data is already enriched.** 70% of the time on this project went into Logstash filters (geo, tags, parsing), not Kibana itself.

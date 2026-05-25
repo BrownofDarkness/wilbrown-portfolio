@@ -8,20 +8,30 @@ import {
   getAdjacentProjects,
   getProjectMeta,
   getProjectSlugs,
+  type ProjectLocale,
 } from "@/lib/projects";
 
 /*
  * Static map of MDX modules — Turbopack/webpack resolve these at build time.
- * Adding a new project: drop the file in src/content/projects/, add the entry here.
+ * Adding a new project: drop two files (slug.fr.mdx + slug.en.mdx) in
+ * src/content/projects/, then add the entry here under both locales.
  */
 const PROJECT_MODULES = {
-  lumidata: () => import("@/content/projects/lumidata.mdx"),
-  snmp: () => import("@/content/projects/snmp.mdx"),
-  quickshift: () => import("@/content/projects/quickshift.mdx"),
-  n8n: () => import("@/content/projects/n8n.mdx"),
+  fr: {
+    lumidata: () => import("@/content/projects/lumidata.fr.mdx"),
+    snmp: () => import("@/content/projects/snmp.fr.mdx"),
+    quickshift: () => import("@/content/projects/quickshift.fr.mdx"),
+    n8n: () => import("@/content/projects/n8n.fr.mdx"),
+  },
+  en: {
+    lumidata: () => import("@/content/projects/lumidata.en.mdx"),
+    snmp: () => import("@/content/projects/snmp.en.mdx"),
+    quickshift: () => import("@/content/projects/quickshift.en.mdx"),
+    n8n: () => import("@/content/projects/n8n.en.mdx"),
+  },
 } as const;
 
-type ProjectSlug = keyof typeof PROJECT_MODULES;
+type ProjectSlug = keyof (typeof PROJECT_MODULES)["fr"];
 
 export function generateStaticParams() {
   const slugs = getProjectSlugs();
@@ -36,11 +46,12 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const meta = getProjectMeta(slug);
+  const meta = getProjectMeta(slug, locale as ProjectLocale);
   if (!meta) return {};
 
   const path = `/work/${slug}`;
-  const canonical = locale === routing.defaultLocale ? path : `/${locale}${path}`;
+  const canonical =
+    locale === routing.defaultLocale ? path : `/${locale}${path}`;
   const ogLocale = locale === "fr" ? "fr_FR" : "en_US";
 
   return {
@@ -79,14 +90,19 @@ export default async function CaseStudyPage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const meta = getProjectMeta(slug);
+  const projectLocale = (locale as ProjectLocale) ?? "fr";
+  const meta = getProjectMeta(slug, projectLocale);
   if (!meta) notFound();
 
-  const loader = PROJECT_MODULES[slug as ProjectSlug];
+  // Pick the MDX loader for the requested locale; fall back to FR if the EN
+  // translation is missing (e.g. a brand-new case study not yet translated).
+  const localeMap =
+    PROJECT_MODULES[projectLocale] ?? PROJECT_MODULES.fr;
+  const loader = localeMap[slug as ProjectSlug] ?? PROJECT_MODULES.fr[slug as ProjectSlug];
   if (!loader) notFound();
   const { default: MDXContent } = await loader();
 
-  const { prev, next } = getAdjacentProjects(slug);
+  const { prev, next } = getAdjacentProjects(slug, projectLocale);
   const t = await getTranslations("case_study");
 
   return (
