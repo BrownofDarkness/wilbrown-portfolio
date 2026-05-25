@@ -210,6 +210,7 @@
     "phone_label": "Direct",
     "phone_value": "+237 656 614 565",
     "phone_intl": "237656614565",
+    "call_label": "Call",
     "whatsapp_label": "WhatsApp",
     "elsewhere": "Also on",
     "form": {

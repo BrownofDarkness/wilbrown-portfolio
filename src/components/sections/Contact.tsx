@@ -43,23 +43,26 @@ export async function Contact() {
             {t("phone_label")}
           </p>
 
-          <a
-            href={`tel:+${phoneIntl}`}
-            className="mt-4 inline-flex items-center gap-3 text-2xl font-semibold text-fg transition-colors hover:text-accent sm:text-3xl"
-          >
-            <Phone size={20} className="text-accent" aria-hidden />
-            {t("phone_value")}
-          </a>
-
-          <a
-            href={`https://wa.me/${phoneIntl}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-2.5 rounded-full border border-border bg-bg-elevated px-4 py-2.5 text-sm text-fg-muted transition-colors hover:border-accent hover:text-accent"
-          >
-            <WhatsappIcon size={16} />
-            {t("whatsapp_label")}
-          </a>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <a
+              href={`tel:+${phoneIntl}`}
+              aria-label={`${t("call_label")} ${t("phone_value")}`}
+              title={t("phone_value")}
+              className="inline-flex items-center gap-2.5 rounded-full border border-border bg-bg-elevated px-4 py-2.5 text-sm text-fg-muted transition-colors hover:border-accent hover:text-accent"
+            >
+              <Phone size={16} aria-hidden />
+              {t("call_label")}
+            </a>
+            <a
+              href={`https://wa.me/${phoneIntl}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 rounded-full border border-border bg-bg-elevated px-4 py-2.5 text-sm text-fg-muted transition-colors hover:border-accent hover:text-accent"
+            >
+              <WhatsappIcon size={16} />
+              {t("whatsapp_label")}
+            </a>
+          </div>
 
           <div className="mt-12">
             <p className="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-fg-subtle">
