@@ -10,7 +10,7 @@ export const SITE = {
     github: "https://github.com/BrownofDarkness",
     gitlab: "https://gitlab.com/BrownWilfried",
     linkedin:
-      "https://linkedin.com/in/djoutsop-takou-wilfried-brown",
+      "https://www.linkedin.com/in/djoutsop-takou-wilfried-brown-735363256",
     twitter: "https://x.com/BrownofDarkness",
   },
 } as const;

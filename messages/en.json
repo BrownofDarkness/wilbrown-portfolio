@@ -231,6 +231,7 @@
   "footer": {
     "tagline": "Interface in spotlight. Infra in shadow.",
     "uptime_label": "Uptime",
+    "live": "live",
     "last_deploy_label": "Last deploy",
     "build_label": "Build",
     "view_source": "View source",

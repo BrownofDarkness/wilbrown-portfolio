@@ -1,10 +1,19 @@
 import Image from "next/image";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Container } from "@/components/ui/Container";
+import { BUILD_HASH, BUILD_TIME_ISO } from "@/lib/build-info";
 import { SITE } from "@/lib/constants";
 
 export async function Footer() {
   const t = await getTranslations("footer");
+  const locale = await getLocale();
+
+  const deployDate = new Date(BUILD_TIME_ISO);
+  const formattedDeploy = new Intl.DateTimeFormat(locale, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(deployDate);
 
   return (
     <footer className="border-t border-border-subtle py-12 sm:py-16">
@@ -39,19 +48,26 @@ export async function Footer() {
             </p>
           </div>
 
-          {/* Live data placeholders — Phase 5 fills these */}
-          <div className="space-y-1 self-center font-mono text-xs text-fg-subtle sm:text-right">
-            <p>
-              {t("uptime_label")}{" "}
-              <span className="text-fg-muted">— phase 5</span>
+          {/* Operator signature — live status + last deploy + build hash.
+              Reinforces the "I run the servers" positioning over a generic
+              social-links footer. */}
+          <div className="space-y-1.5 self-center font-mono text-xs text-fg-subtle sm:text-right">
+            <p className="inline-flex items-center gap-2 sm:flex-row-reverse">
+              <span className="relative inline-flex h-2 w-2" aria-hidden>
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+              </span>
+              <span>
+                {t("uptime_label")} <span className="text-fg">{t("live")}</span>
+              </span>
             </p>
             <p>
               {t("last_deploy_label")}{" "}
-              <span className="text-fg-muted">— phase 5</span>
+              <span className="text-fg-muted">{formattedDeploy}</span>
             </p>
             <p>
               {t("build_label")}{" "}
-              <span className="text-fg-muted">— phase 5</span>
+              <span className="text-fg-muted">{BUILD_HASH}</span>
             </p>
           </div>
         </div>

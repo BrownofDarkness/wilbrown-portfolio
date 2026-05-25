@@ -231,6 +231,7 @@
   "footer": {
     "tagline": "Interface en lumière. Infra dans l'ombre.",
     "uptime_label": "Uptime",
+    "live": "live",
     "last_deploy_label": "Dernier déploiement",
     "build_label": "Build",
     "view_source": "Voir la source",
