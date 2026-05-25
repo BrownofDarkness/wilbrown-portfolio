@@ -240,7 +240,8 @@
     "read_more": "Read more",
     "back": "Back",
     "loading": "Loading…",
-    "scroll_hint": "Scroll"
+    "scroll_hint": "Scroll",
+    "skip_to_content": "Skip to content"
   },
   "case_study": {
     "back": "Back to projects",

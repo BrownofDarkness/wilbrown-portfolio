@@ -240,7 +240,8 @@
     "read_more": "Lire la suite",
     "back": "Retour",
     "loading": "Chargement…",
-    "scroll_hint": "Faire défiler"
+    "scroll_hint": "Faire défiler",
+    "skip_to_content": "Aller au contenu"
   },
   "case_study": {
     "back": "Retour aux projets",

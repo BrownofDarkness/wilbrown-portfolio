@@ -4,6 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { Manrope, Geist_Mono } from "next/font/google";
+import { SkipLink } from "@/components/a11y/SkipLink";
 import { Footer } from "@/components/layout/Footer";
 import { TopNav } from "@/components/layout/TopNav";
 import { ConstellationBg } from "@/components/ui/ConstellationBg";
@@ -78,8 +79,11 @@ export default async function LocaleLayout({
           <ConstellationBg />
         </div>
         <NextIntlClientProvider>
+          <SkipLink />
           <TopNav />
-          <main className="flex-1">{children}</main>
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
           <Footer />
         </NextIntlClientProvider>
       </body>
