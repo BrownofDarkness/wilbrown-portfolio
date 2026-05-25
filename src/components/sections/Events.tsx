@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
+import { Link } from "@/i18n/navigation";
 import { getAllEvents } from "@/lib/event";
 import { EventGrid } from "./EventGrid";
 
@@ -10,14 +10,9 @@ const HOME_LIMIT = 4;
 
 export async function Events() {
   const t = await getTranslations("events");
-  const locale = await getLocale();
   const all = getAllEvents();
   const teaser = all.slice(0, HOME_LIMIT);
   const hasMore = all.length > HOME_LIMIT;
-
-  // Build the locale-aware /events URL. FR is default with localePrefix
-  // "as-needed", so we strip the leading /fr.
-  const allHref = locale === "fr" ? "/events" : `/${locale}/events`;
 
   return (
     <Section id="events">
@@ -36,7 +31,7 @@ export async function Events() {
       {hasMore && (
         <div className="mt-12 flex justify-center">
           <Link
-            href={allHref}
+            href="/events"
             className="group inline-flex h-12 items-center gap-3 rounded-full border border-border bg-bg-elevated px-6 font-mono text-xs uppercase tracking-[0.15em] text-fg transition-colors hover:border-accent hover:text-accent"
           >
             {t("view_all", { count: all.length })}

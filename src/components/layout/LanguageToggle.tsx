@@ -1,16 +1,28 @@
-import Link from "next/link";
-import { getLocale, getTranslations } from "next-intl/server";
-import { Globe } from "lucide-react";
+"use client";
 
-export async function LanguageToggle() {
-  const locale = await getLocale();
-  const t = await getTranslations("nav");
-  const href = locale === "fr" ? "/en" : "/";
+import { useLocale, useTranslations } from "next-intl";
+import { Globe } from "lucide-react";
+import { Link, usePathname } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
+
+/*
+ * Switches between locales while keeping the user on the SAME page.
+ * From /en/work/lumidata, clicking FR goes to /work/lumidata (not /).
+ * Uses next-intl's locale-aware <Link> with the `locale` prop, which
+ * preserves the current pathname and just swaps the prefix.
+ */
+export function LanguageToggle() {
+  const locale = useLocale();
+  const pathname = usePathname();
+  const t = useTranslations("nav");
+  const nextLocale =
+    locale === routing.defaultLocale ? "en" : routing.defaultLocale;
 
   return (
     <Link
-      href={href}
-      aria-label={`Switch to ${locale === "fr" ? "English" : "Français"}`}
+      href={pathname}
+      locale={nextLocale}
+      aria-label={`Switch to ${nextLocale === "en" ? "English" : "Français"}`}
       className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border px-3 font-mono text-xs text-fg-muted transition-colors hover:border-accent hover:text-accent"
     >
       <Globe size={14} aria-hidden />

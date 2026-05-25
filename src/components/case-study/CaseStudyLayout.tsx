@@ -1,8 +1,8 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowLeft, ArrowRight, Lock } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Tag } from "@/components/ui/Tag";
+import { Link } from "@/i18n/navigation";
 import { type ProjectMeta } from "@/lib/projects";
 
 type Props = {

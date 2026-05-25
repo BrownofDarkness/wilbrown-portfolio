@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { EventGrid } from "@/components/sections/EventGrid";
+import { Link } from "@/i18n/navigation";
 import { getAllEvents } from "@/lib/event";
 import { routing } from "@/i18n/routing";
 import { SITE } from "@/lib/constants";
@@ -50,13 +50,12 @@ export default async function EventsPage({
 
   const t = await getTranslations("events");
   const entries = getAllEvents();
-  const homeHref = locale === "fr" ? "/#events" : `/${locale}/#events`;
 
   return (
     <main className="py-20 sm:py-28">
       <Container>
         <Link
-          href={homeHref}
+          href="/#events"
           className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-[0.2em] text-fg-muted transition-colors hover:text-accent"
         >
           <ArrowLeft size={12} />
