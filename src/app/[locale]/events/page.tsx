@@ -1,20 +1,42 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { EventGrid } from "@/components/sections/EventGrid";
 import { getAllEvents } from "@/lib/event";
+import { routing } from "@/i18n/routing";
+import { SITE } from "@/lib/constants";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string }>;
-}) {
+}): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "events" });
+  const canonical = locale === routing.defaultLocale ? "/events" : `/${locale}/events`;
+  const ogLocale = locale === "fr" ? "fr_FR" : "en_US";
+
   return {
     title: t("page_title"),
     description: t("intro"),
+    alternates: {
+      canonical,
+      languages: {
+        fr: "/events",
+        en: "/en/events",
+        "x-default": "/events",
+      },
+    },
+    openGraph: {
+      type: "website",
+      locale: ogLocale,
+      siteName: SITE.name,
+      title: t("page_title"),
+      description: t("intro"),
+      url: canonical,
+    },
   };
 }
 

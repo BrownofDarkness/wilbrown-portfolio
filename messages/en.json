@@ -1,4 +1,11 @@
 {
+  "seo": {
+    "home_title": "Wilfried Brown — Full-stack developer",
+    "home_description": "I build apps. I run the servers. I teach both. Flutter / Django / Linux — 5 years of professional practice from Yaoundé, Cameroon.",
+    "home_keywords": "full-stack developer, Flutter, Django, Linux, freelance, Yaoundé, Cameroon, mobile, backend, DevOps",
+    "events_page_title": "Events — conferences, workshops, meetups",
+    "case_study_meta": "{client} — {role}"
+  },
   "nav": {
     "hero": "Top",
     "about": "About",

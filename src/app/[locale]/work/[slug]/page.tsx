@@ -1,7 +1,9 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CaseStudyLayout } from "@/components/case-study/CaseStudyLayout";
 import { routing } from "@/i18n/routing";
+import { SITE } from "@/lib/constants";
 import {
   getAdjacentProjects,
   getProjectMeta,
@@ -26,6 +28,47 @@ export function generateStaticParams() {
   return routing.locales.flatMap((locale) =>
     slugs.map((slug) => ({ locale, slug })),
   );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const meta = getProjectMeta(slug);
+  if (!meta) return {};
+
+  const path = `/work/${slug}`;
+  const canonical = locale === routing.defaultLocale ? path : `/${locale}${path}`;
+  const ogLocale = locale === "fr" ? "fr_FR" : "en_US";
+
+  return {
+    title: meta.title,
+    description: meta.summary,
+    alternates: {
+      canonical,
+      languages: {
+        fr: path,
+        en: `/en${path}`,
+        "x-default": path,
+      },
+    },
+    openGraph: {
+      type: "article",
+      locale: ogLocale,
+      siteName: SITE.name,
+      title: meta.title,
+      description: meta.summary,
+      url: canonical,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: meta.title,
+      description: meta.summary,
+      creator: SITE.twitter,
+    },
+  };
 }
 
 export default async function CaseStudyPage({
