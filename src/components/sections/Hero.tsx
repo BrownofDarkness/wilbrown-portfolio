@@ -47,14 +47,19 @@ export async function Hero() {
       <HeroSceneClient />
 
       <Container>
-        <div className="grid gap-14 lg:grid-cols-12 lg:items-center lg:gap-10">
+        {/* Root-cause fix: grid-cols-1 explicitly sets template-columns: 1fr
+            on mobile, so the LEFT column spans full Container width. Without
+            it, lg:grid-cols-12 only kicks in at lg+, and the implicit grid
+            below lg auto-sizes the column to its content max-width — which
+            shrinks lg:col-span-7 to ~320px (the H1 width), breaking any
+            full-width child like the avatar wrapper or the -mx-6 stack
+            scroll-strip. */}
+        <div className="grid grid-cols-1 gap-14 lg:grid-cols-12 lg:items-center lg:gap-10">
           {/* LEFT: content */}
           <div className="lg:col-span-7">
             {/* Mobile-only compact avatar — desktop shows it in the right
-                column below. grid place-items-center is the most robust
-                centering primitive: works regardless of the intermediate
-                Reveal div's default block behavior or GSAP transforms. */}
-            <div className="mb-8 grid w-full place-items-center lg:hidden">
+                column below. */}
+            <div className="mb-8 flex justify-center lg:hidden">
               <Reveal mode="mount" delay={0.2} y={16}>
                 <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-accent/20 bg-bg-elevated">
                   <Image
@@ -118,17 +123,22 @@ export async function Hero() {
               </p>
             </Reveal>
 
-            {/* Mobile-only horizontal stack scroll — desktop has the
-                numbered list in the right column. */}
+            {/* Mobile-only stack — mirrors the desktop pattern (number +
+                rule + label) but stacked vertically so all 4 entries are
+                visible without horizontal scrolling. */}
             <Reveal mode="mount" delay={0.95} y={16}>
-              <ul className="-mx-6 mt-8 flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-px-6 px-6 lg:hidden">
+              <ul className="mt-8 space-y-2.5 lg:hidden">
                 {stack.map((item) => (
                   <li
                     key={item.number}
-                    className="flex shrink-0 snap-start items-center gap-3 font-mono text-[11px]"
+                    className="flex items-center gap-4 font-mono text-[11px]"
                   >
-                    <span className="text-accent">{item.number}</span>
-                    <span className="whitespace-nowrap uppercase tracking-[0.15em] text-fg-muted">
+                    <span className="w-6 text-accent">{item.number}</span>
+                    <span
+                      className="h-px flex-1 bg-border-subtle"
+                      aria-hidden
+                    />
+                    <span className="uppercase tracking-[0.15em] text-fg-muted">
                       {item.label}
                     </span>
                   </li>
