@@ -113,6 +113,10 @@
     "title": "A few projects shipped or operated.",
     "intro": "Four representative case studies. Detailed write-ups live in sub-pages.",
     "view_case": "Read the case study →",
+    "view_all": "View all case studies ({count})",
+    "page_title": "All case studies",
+    "back_home": "Back home",
+    "total_count": "{count, plural, =1 {1 case study} other {# case studies}}",
     "projects": {
       "lumidata": {
         "title": "lumidata.ai infra overhaul",

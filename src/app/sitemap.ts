@@ -23,7 +23,7 @@ function alternatesFor(path: string): Record<string, string> {
   );
 }
 
-const PUBLIC_PATHS = ["/", "/events"] as const;
+const PUBLIC_PATHS = ["/", "/work", "/events"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

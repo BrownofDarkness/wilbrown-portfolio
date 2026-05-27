@@ -113,6 +113,10 @@
     "title": "Quelques projets livrés ou opérés.",
     "intro": "Quatre cas d'usage représentatifs. Les contenus détaillés arrivent en sous-pages.",
     "view_case": "Lire le cas d'usage →",
+    "view_all": "Voir tous les cas d'usage ({count})",
+    "page_title": "Tous les cas d'usage",
+    "back_home": "Retour à l'accueil",
+    "total_count": "{count, plural, =1 {1 cas d'usage} other {# cas d'usage}}",
     "projects": {
       "lumidata": {
         "title": "Refonte infra lumidata.ai",
