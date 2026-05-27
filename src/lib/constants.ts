@@ -6,6 +6,13 @@ export const SITE = {
   email: "takoubrown@gmail.com",
   url: "https://wilfriedbrown.dev",
   twitter: "@BrownofDarkness",
+  // Set both to empty string when you don't want to broadcast availability
+  // — the AvailabilityPill component hides itself when the localized
+  // string is empty.
+  availability: {
+    fr: "Disponible mai–août 2026",
+    en: "Available May–Aug 2026",
+  },
   socials: {
     github: "https://github.com/BrownofDarkness",
     gitlab: "https://gitlab.com/BrownWilfried",
