@@ -51,11 +51,12 @@ export async function Hero() {
           {/* LEFT: content */}
           <div className="lg:col-span-7">
             {/* Mobile-only compact avatar — desktop shows it in the right
-                column below. mx-auto on the circle itself + block parent
-                guarantees centering regardless of how Reveal wraps content. */}
-            <div className="mb-8 block w-full text-center lg:hidden">
+                column below. grid place-items-center is the most robust
+                centering primitive: works regardless of the intermediate
+                Reveal div's default block behavior or GSAP transforms. */}
+            <div className="mb-8 grid w-full place-items-center lg:hidden">
               <Reveal mode="mount" delay={0.2} y={16}>
-                <div className="relative mx-auto inline-block h-20 w-20 overflow-hidden rounded-full border-2 border-accent/20 bg-bg-elevated">
+                <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-accent/20 bg-bg-elevated">
                   <Image
                     src="/avatars/avatar-01-hero.jpeg"
                     alt="Wilfried Brown — portrait illustré"
