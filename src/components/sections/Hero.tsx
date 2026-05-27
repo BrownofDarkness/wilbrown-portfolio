@@ -7,6 +7,7 @@ import {
   XIcon,
 } from "@/components/icons/SocialIcons";
 import { HeroSceneClient } from "@/components/three/HeroSceneClient";
+import { AvailabilityPill } from "@/components/ui/AvailabilityPill";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { HeroTitleReveal } from "@/components/ui/HeroTitleReveal";
@@ -49,7 +50,31 @@ export async function Hero() {
         <div className="grid gap-14 lg:grid-cols-12 lg:items-center lg:gap-10">
           {/* LEFT: content */}
           <div className="lg:col-span-7">
-            <Reveal mode="mount" delay={0} y={16}>
+            {/* Mobile-only compact avatar — desktop shows it in the right
+                column below. */}
+            <Reveal mode="mount" delay={0.2} y={16}>
+              <div className="mb-8 flex justify-center lg:hidden">
+                <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-accent/20 bg-bg-elevated">
+                  <Image
+                    src="/avatars/avatar-01-hero.jpeg"
+                    alt="Wilfried Brown — portrait illustré"
+                    fill
+                    sizes="80px"
+                    className="object-cover"
+                    unoptimized
+                    priority
+                  />
+                </div>
+              </div>
+            </Reveal>
+
+            <Reveal mode="mount" delay={0} y={12}>
+              <div className="mb-6">
+                <AvailabilityPill />
+              </div>
+            </Reveal>
+
+            <Reveal mode="mount" delay={0.05} y={16}>
               <div className="flex items-baseline gap-3">
                 <span className="font-mono text-xs uppercase tracking-[0.25em] text-fg-subtle">
                   [ 00 ]
@@ -89,6 +114,24 @@ export async function Hero() {
                 {t("bio")}{" "}
                 <span className="text-fg-muted">·</span> {t("location")}
               </p>
+            </Reveal>
+
+            {/* Mobile-only horizontal stack scroll — desktop has the
+                numbered list in the right column. */}
+            <Reveal mode="mount" delay={0.95} y={16}>
+              <ul className="-mx-6 mt-8 flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-px-6 px-6 lg:hidden">
+                {stack.map((item) => (
+                  <li
+                    key={item.number}
+                    className="flex shrink-0 snap-start items-center gap-3 font-mono text-[11px]"
+                  >
+                    <span className="text-accent">{item.number}</span>
+                    <span className="whitespace-nowrap uppercase tracking-[0.15em] text-fg-muted">
+                      {item.label}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </Reveal>
 
             <Reveal mode="mount" delay={1} y={16}>
