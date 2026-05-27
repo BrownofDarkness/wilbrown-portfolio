@@ -3,11 +3,11 @@ slug: "quickshift"
 order: 3
 title: "QuickShift — shift management for hospital teams"
 client: "Client project"
-period: "2024"
-role: "Flutter Developer · Django Backend"
-summary: "Flutter mobile app with Django + Redis backend for hospital team shift management. Multi-role, StatefulShellRoute navigation, JWT-secured REST API."
-tags: ["Flutter", "Django", "Mobile", "Backend"]
-stack: ["Flutter 3", "Dart", "GoRouter", "Riverpod", "Dio", "Django 4", "DRF", "PyJWT", "Redis", "PostgreSQL"]
+period: "December 2025 — 2026"
+role: "Flutter mobile · Django backend · API design"
+summary: "Flutter + Django app for hospital team shift management. Multi-role access, shell-based navigation, REST API secured with role-scoped JWTs."
+tags: ["Flutter", "Django", "Mobile", "Backend", "JWT", "Multi-role"]
+stack: ["Flutter 3.24", "Dart 3.5", "go_router 17.1", "GetX 4.7", "Dio 5.7", "image_picker", "Django 4.2", "DRF 3.15", "SimpleJWT", "PostgreSQL 15", "Redis 7"]
 confidential: true
 locale: "en"
 ---
@@ -16,44 +16,40 @@ locale: "en"
 QuickShift is a client project whose intellectual property belongs to my client. This page describes my technical involvement and architecture choices without revealing screenshots, detailed business logic, or confidential product elements.
 </Callout>
 
-QuickShift is a mobile application dedicated to managing team shifts in hospital structures. My engagement: design and deliver the Flutter app plus its Django backend, starting from a functional spec and owning the full technical stack.
+QuickShift is a mobile app for managing shift schedules in hospital teams. My engagement: design and deliver the Flutter app and its Django backend, owning the entire technical stack.
 
 ## Context
 
-The client operates in healthcare and needed a mobile solution to let their teams (administrators, service managers, employees) consult, request, and validate shifts in real time. Constraints: multi-role with strict permissions, partial offline reliability, and fast UX suited for use between two interventions.
+QuickShift addresses a common operational need in healthcare settings: coordinating shifts across cross-functional teams where three distinct roles operate (clinical staff, department heads, hospital administrators), each with very different permissions and views. The target use is mobile, between tasks — so low latency, minimal scrolling, and zero tolerance for session loss while checking a planning. The main constraints: multi-facility (a single user can belong to several institutions via multiple memberships), shift swap workflows that go through validation steps, and admin-invitation onboarding rather than open signup.
 
 ## Architecture
 
-**Flutter frontend** with:
+**Flutter frontend.** Built on Flutter 3.24 / Dart 3.5. Navigation uses `go_router` 17.1 with a per-role `StatefulShellRoute.indexedStack`: each role has its own shell (5 bottom-nav tabs), with `parentNavigatorKey: _rootNavigatorKey` for push routes that need to render over the nav bar (profile editing, user details, forms). For state management I picked **GetX** over Riverpod/Bloc — a pragmatic call: the app needed a lightweight DI container, simple reactive observables, and the ability to fire snackbars or navigate from anywhere without threading a `BuildContext`. Controllers are organised by feature, with **primary controllers** (one per role) exposing `currentUser` and `currentMembership` as `Rxn` observables backed by local storage — any `Obx` reading them rebuilds automatically after a profile edit.
 
-- **GoRouter + StatefulShellRoute** for persistent-tab navigation (each role sees its own tree)
-- **Riverpod** for state management (sessions, shift lists, forms)
-- **Dio** for HTTP calls with JWT interceptors + automatic refresh
-- **Local storage** for recent data (cache of recently viewed shifts)
+**Django backend.** Django 4.2 + DRF 3.15. The project is split into apps by bounded context (auth, organizations, plannings) with `ViewSet`s and per-viewset DRF permissions keyed on role. Auth runs on `djangorestframework-simplejwt` with explicit refresh token rotation. The JWT payload carries the active membership's role — backend permission classes read that scope instead of re-querying the DB on every request, and the frontend routes post-login based on the role.
 
-**Django backend** with:
+**Persistence.** PostgreSQL 15 for transactional data (users, memberships, plannings, shifts, exchanges, absences). The schema centres on a **membership** table linking a user to a facility with a role and a service — that's the table that carries the role, not the user itself, which lets the same user be regular staff in one facility and a department head in another. Redis 7 is used mainly as a cache for dashboard aggregates (admin overview, personal stats) which are expensive to compute and read frequently, and for rate-limiting a few sensitive endpoints (auth, invitations).
 
-- **Django REST Framework** to expose endpoints
-- **JWT authentication** with refresh tokens, role scope included in the payload
-- **Custom per-role permissions** at the ViewSet level (admin / manager / employee)
-- **Redis** for shift list caching and notification queue
-- **PostgreSQL** for persistence
+**Client network layer.** I wrote a `BaseApiService` around Dio with an interceptor that handles refresh tokens automatically: on 401, it checks we're not already on the refresh endpoint, serialises concurrent refreshes through a `Completer` queue (one refresh at a time, other requests wait for the result), replays the original request with the new token via `_dio.fetch`, and only triggers a clean logout if the refresh genuinely fails. The wrapper methods (`get`, `post`, `patch` with `FormData` support) stay free of any manual refresh logic in their `catch` blocks.
 
-<TechStack items={["Flutter 3", "Dart", "GoRouter", "Riverpod", "Dio", "Django 4", "DRF", "PyJWT", "Redis", "PostgreSQL"]} />
+**File uploads.** Profile photo via `image_picker` (gallery + camera), sent as `multipart/form-data` to the same PATCH endpoint as the text fields — Dio detects `FormData` and switches the content-type accordingly. Primary controllers' `Rxn`s refresh after success, so the new photo appears instantly in the drawer, home, and profile screens with no manual navigation.
 
-The API/mobile separation let the client consider a future web version without touching the backend.
+<TechStack items={["Flutter 3.24", "Dart 3.5", "go_router 17.1", "GetX 4.7", "Dio 5.7", "image_picker", "Django 4.2", "DRF 3.15", "SimpleJWT", "PostgreSQL 15", "Redis 7"]} />
 
 ## Outcomes
 
-- **Flutter app delivered** on Android (client-managed deployment)
-- **Django backend in production** with documented endpoints and tested permissions
-- **Multi-role authentication** operational with JWT scope and DRF permissions
-- **StatefulShellRoute navigation**: each role has its own navigation stack with persistent tabs, no state loss on tab switch
-- **Redis cache** for frequently consulted lists, reducing DB load
-- **API documentation** for the client and future contributors
+- **Role-based navigation via StatefulShellRoute**: three distinct shells, independent bottom nav per role, push routes attached to the root navigator so they render above the nav bar
+- **JWT auth with transparent refresh**: Dio interceptor refreshes the token on 401, serialises concurrent refreshes, replays the original request — the user sees no interruption as long as the refresh token is still valid
+- **Multi-membership**: a single account can belong to several facilities with different roles, with a facility switch that reloads scoped data (planning, stats, activity) without relogging in
+- **Profile editing with photo**: full flow including camera/gallery bottom sheet, multipart upload on the same endpoint as text fields, reactive propagation of the new profile across the whole app
+- **In-session password reset**: forgot password → OTP → new password flow that purges the local session (storage + controllers) before sending the user back to login, to avoid a zombie session
+- **Admin-side user promotion**: modal dialog adapting to the target's role, with list refresh on success
+- **Aggregated dashboard endpoints**: a single GET per landing screen returns overview + exchanges + stats + recent activity, rather than fanning out round-trips
+- **Network timeout and error handling**: 15s timeout, consistent snackbars via `awesome_snackbar_content` with warning / failure types, `hasError` + retry pattern on critical views
+- **Shared EmptyStateWidget**: a single component reused across ~10 screens to keep the "nothing to show" state consistent instead of duplicating cosmetics
 
 ## Lessons
 
-- **StatefulShellRoute changes the game in Flutter.** Before, simulating persistent-tab navigation required fragile custom code. With StatefulShellRoute, it's native, declarative, and tab state is preserved without hacks.
-- **Riverpod over BLoC for medium-sized apps.** For a project this size (10-15 screens, 4-5 distinct features), Riverpod offers much better DX than BLoC for the learning cost it requires.
-- **JWT role scope avoids endpoint proliferation.** Rather than `/api/admin/shifts` + `/api/manager/shifts` + `/api/employee/shifts`, I kept a single `/api/shifts` whose response varies based on the role in the JWT. The DRF backend filters what the user is allowed to see. Less code, fewer paths to secure.
+- **The refresh interceptor must serialise concurrent refreshes.** Without a queue, parallel requests hitting 401 simultaneously will all try to refresh at once, burn the refresh token (often single-use server-side), and one of them tears down the session. A simple `Completer` queue plus an `_isRefreshing` flag solve it — and the pattern transposes verbatim to any HTTP client with interceptors.
+- **Centralised reactive models beat storage getters.** Moving from getters that re-read storage on every call to `Rxn` observables held by a primary controller killed an entire class of "screen X still shows the old photo" bugs. The pattern: storage = persistence, Rxn = reactive truth, a `refreshFromStorage()` method to sync the two. Near-zero cost, huge consistency win.
+- **Role-scoped JWTs beat re-querying the DB.** Embedding the active membership's role in the token payload removes one DB hit per API call (DRF permissions read the claim, not the table), lets the frontend route post-login with no extra request, and keeps the contract between client and server explicit. The trade-off: you have to re-issue a token on facility switch — cheap.
