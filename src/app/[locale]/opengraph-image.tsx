@@ -11,11 +11,15 @@ export const contentType = "image/png";
 /*
  * Auto-generated OG image used by social platforms (LinkedIn, X, Slack…)
  * when someone shares the portfolio URL. Composed via next/og (Satori).
- * Avatar Pose 8 + brand layout in navy/cyan with Manrope-like display fonts.
+ *
+ * Layout: avatar-06 (back view, coding on laptop, landscape) fills the
+ * full canvas; a left→right dark gradient overlay keeps text legible on
+ * the left 60% while the avatar fades visible on the right. Brand
+ * navy/cyan palette throughout.
  */
 export default async function OpengraphImage() {
   const avatarBytes = await readFile(
-    join(process.cwd(), "public/avatars/avatar-08-headshot.jpeg"),
+    join(process.cwd(), "public/avatars/avatar-06-coding.jpeg"),
   );
   const avatarSrc = `data:image/jpeg;base64,${avatarBytes.toString("base64")}`;
 
@@ -26,37 +30,55 @@ export default async function OpengraphImage() {
           display: "flex",
           width: "100%",
           height: "100%",
-          background:
-            "radial-gradient(ellipse at top left, #021838 0%, #010c1f 60%)",
-          color: "#fcfcfb",
-          padding: 64,
           position: "relative",
+          color: "#fcfcfb",
           fontFamily: "system-ui, sans-serif",
+          background: "#010c1f",
         }}
       >
-        {/* Subtle cyan accent ring on top-right */}
-        <div
+        {/* Background avatar — fills the canvas, anchored right so the
+            laptop + figure stays visible behind the right side of the OG */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={avatarSrc}
+          alt=""
+          width={1200}
+          height={630}
           style={{
             position: "absolute",
-            top: -200,
-            right: -200,
-            width: 600,
-            height: 600,
-            borderRadius: "50%",
-            background: "rgba(0, 162, 154, 0.08)",
-            filter: "blur(80px)",
-            display: "flex",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "right center",
           }}
         />
 
-        {/* Left column: identity */}
+        {/* Gradient overlay: dark navy on the left fades to transparent on
+            the right so the avatar art reads underneath the text-free area */}
         <div
           style={{
-            flex: 1,
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            background:
+              "linear-gradient(90deg, #010c1f 0%, rgba(1,12,31,0.85) 28%, rgba(1,12,31,0.35) 55%, rgba(1,12,31,0.05) 85%)",
+          }}
+        />
+
+        {/* Content — sits on top of the gradient on the left 60% */}
+        <div
+          style={{
+            position: "relative",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
-            zIndex: 1,
+            padding: 72,
+            width: "60%",
           }}
         >
           <div style={{ display: "flex", flexDirection: "column" }}>
@@ -74,7 +96,7 @@ export default async function OpengraphImage() {
             >
               <span
                 style={{
-                  display: "inline-block",
+                  display: "flex",
                   width: 10,
                   height: 10,
                   borderRadius: "50%",
@@ -124,30 +146,6 @@ export default async function OpengraphImage() {
               Flutter / Django / Linux · Yaoundé, Cameroun
             </p>
           </div>
-        </div>
-
-        {/* Right column: avatar */}
-        <div
-          style={{
-            width: 360,
-            height: 360,
-            alignSelf: "center",
-            marginLeft: 48,
-            borderRadius: 24,
-            overflow: "hidden",
-            border: "1px solid rgba(0, 162, 154, 0.3)",
-            boxShadow: "0 30px 80px -20px rgba(0, 162, 154, 0.35)",
-            display: "flex",
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={avatarSrc}
-            alt=""
-            width={360}
-            height={360}
-            style={{ objectFit: "cover", width: "100%", height: "100%" }}
-          />
         </div>
       </div>
     ),
