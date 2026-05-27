@@ -249,6 +249,7 @@
     "back": "Retour aux projets",
     "prev": "Précédent",
     "next": "Suivant",
-    "confidential": "Cas d'usage client — sous accord de confidentialité"
+    "confidential": "Cas d'usage client — sous accord de confidentialité",
+    "toc": "Sommaire"
   }
 }

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ArrowLeft, ArrowRight, Lock } from "lucide-react";
+import { CaseStudyTOC } from "@/components/case-study/CaseStudyTOC";
 import { Container } from "@/components/ui/Container";
 import { Tag } from "@/components/ui/Tag";
 import { Link } from "@/i18n/navigation";
@@ -13,6 +14,7 @@ type Props = {
   prevLabel: string;
   nextLabel: string;
   confidentialLabel: string;
+  tocLabel: string;
   children: ReactNode;
 };
 
@@ -24,6 +26,7 @@ export function CaseStudyLayout({
   prevLabel,
   nextLabel,
   confidentialLabel,
+  tocLabel,
   children,
 }: Props) {
   return (
@@ -67,8 +70,15 @@ export function CaseStudyLayout({
           )}
         </header>
 
-        {/* Body — prose container */}
-        <div className="mt-16 max-w-3xl">{children}</div>
+        {/* Body — prose column + sticky TOC sidebar on lg+ */}
+        <div className="mt-16 lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-12">
+          <div className="max-w-3xl">{children}</div>
+          <aside className="hidden lg:block">
+            <div className="sticky top-24">
+              <CaseStudyTOC label={tocLabel} />
+            </div>
+          </aside>
+        </div>
 
         {/* Prev/Next nav */}
         <nav className="mt-24 grid gap-4 border-t border-border-subtle pt-8 sm:grid-cols-2">

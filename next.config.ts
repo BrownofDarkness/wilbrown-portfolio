@@ -9,6 +9,9 @@ const withMDX = createMDX({
     // for routing/SEO/header metadata. Plugin reference passed as a string
     // so Turbopack can serialize it across processes.
     remarkPlugins: [["remark-frontmatter", ["yaml"]]],
+    // Auto-generate id="…" attributes on every heading so the case-study
+    // TOC can deep-link and scroll-spy to each section.
+    rehypePlugins: [["rehype-slug"]],
   },
 });
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");

@@ -114,6 +114,7 @@ export default async function CaseStudyPage({
       prevLabel={t("prev")}
       nextLabel={t("next")}
       confidentialLabel={t("confidential")}
+      tocLabel={t("toc")}
     >
       <MDXContent />
     </CaseStudyLayout>
