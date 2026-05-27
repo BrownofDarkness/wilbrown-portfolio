@@ -4,48 +4,65 @@ order: 2
 title: "Pipeline observabilité SNMP — Zabbix vers Elasticsearch"
 client: "IBAASS Labs"
 period: "Jan 2024 — Fév 2025"
-role: "Développeur Python · Observabilité"
-summary: "Collecte SNMP custom en Python, orchestration Zabbix → Kafka → Logstash → Elasticsearch → Kibana, load balancing inter-workers. Pipeline production sur équipements réseau hétérogènes."
-tags: ["Observabilité", "Python", "Kafka", "ELK"]
-stack: ["Python", "Zabbix", "Apache Kafka", "Logstash", "Elasticsearch", "Kibana", "PySNMP", "Docker"]
+role: "Ingénieur Observabilité · Backend"
+summary: "Pipeline SNMP→ECS Elasticsearch en 7 couches avec haute disponibilité à chaque étage, traitant ~1000 équipements multi-vendeurs (Cisco IOS, ASAv, Juniper, Fortinet). 23M+ documents indexés, latence end-to-end < 3 min."
+tags: ["Observabilité", "Kafka", "ELK", "HA", "Multi-vendor"]
+stack: ["Zabbix 7.x", "Apache Kafka 4.0 KRaft", "Kafka Streams", "Kafka Connect", "HAProxy", "Keepalived", "Logstash 8.x", "Elasticsearch 8.x", "Kibana", "PostgreSQL", "Docker", "ECS 8.11"]
 confidential: false
 locale: "fr"
 ---
 
-Pendant ma période chez IBAASS, j'ai conçu et opéré un pipeline d'observabilité pour collecter, traiter et indexer des métriques SNMP venant d'équipements réseau hétérogènes. L'enjeu : transformer un flot brut d'OIDs SNMP en dashboards exploitables, avec une architecture scalable et tolérante aux pannes.
+Pendant ma période chez IBAASS, j'ai conçu et opéré un pipeline d'observabilité de bout en bout pour collecter, transformer et indexer des métriques SNMP venant d'environ **1000 équipements réseau multi-vendeurs** (Cisco IOS, Cisco ASAv, Juniper, Fortinet). L'enjeu : transformer un flot brut d'OIDs SNMP en données ECS-compliant exploitables dans Kibana, avec une architecture **scalable, normalisée, et hautement disponible**.
 
 ## Contexte
 
-L'équipe surveillait un parc d'équipements réseau (switches, routeurs, AP) qui exposaient leurs métriques via SNMP. Zabbix faisait déjà la collecte, mais les données restaient enfermées dans Zabbix lui-même, sans possibilité de corrélation cross-équipement ni d'historique long terme exploitable. On voulait envoyer ces métriques dans Elasticsearch pour pouvoir les croiser avec d'autres logs applicatifs et construire des dashboards Kibana riches.
+Le parc à surveiller couvrait 4 familles d'équipements réseau via SNMP v2c/v3. Zabbix faisait déjà la collecte mais les données restaient enfermées dans Zabbix lui-même, sans possibilité de corrélation cross-équipement ni d'historique long terme exploitable. L'objectif : exporter ces métriques vers Elasticsearch dans un format **ECS standard** pour pouvoir les croiser avec d'autres logs applicatifs, construire des dashboards Kibana riches, et tenir un SLA de disponibilité de 99.99% sur la chaîne de monitoring elle-même (parce qu'un système qui monitore tout le reste doit être plus fiable que tout le reste).
 
 ## Architecture
 
-Le pipeline en 5 étages :
+J'ai conçu une architecture en **7 couches avec haute disponibilité** à chaque étage :
 
-1. **Collecte SNMP** par Zabbix sur chaque équipement (polling sur intervalles configurables)
-2. **Export Zabbix → Kafka** via un connecteur custom en Python (consume Zabbix history API, produce sur topics Kafka par catégorie de métrique)
-3. **Kafka** comme buffer/queue tolérant aux pannes (3 brokers, partitionnement par device-id pour ordre garanti)
-4. **Logstash** comme consumer Kafka → transformation, enrichissement (geo, tags équipement), parsing
-5. **Elasticsearch** comme index final + **Kibana** comme couche de visualisation
+**Layer 1 — Collection SNMP**  
+Deux **proxies Zabbix** en parallèle, collectant via SNMP v2c/v3 depuis le parc. Templates spécialisés par vendor. Fréquence de polling de 30s à 5min selon la criticité de la métrique.
 
-<TechStack items={["Python 3.11", "PySNMP", "Zabbix API", "Apache Kafka", "Logstash", "Elasticsearch 8", "Kibana", "Docker Compose"]} />
+**Layer 2 — Processing**  
+Deux **serveurs Zabbix en HA Active/Standby** (HA native Zabbix 7.x) avec base **PostgreSQL** partagée. Failover détecté en < 30s, transparent côté proxies.
 
-Le **partitionnement Kafka par device-id** garantit l'ordre des messages pour un même équipement (essentiel pour les compteurs cumulatifs SNMP). Le **load balancing** entre workers Logstash se fait naturellement via les consumer groups Kafka — chaque worker prend une partition.
+**Layer 3 — HA Distribution**  
+**HAProxy + Keepalived** avec VIP de basculement (MASTER/BACKUP). Distribution round-robin 50/50 vers la couche connecteurs Kafka. Failover VIP en < 3s.
+
+**Layer 4 — Connecteurs Kafka**  
+Deux connecteurs HTTP→Kafka en mode **ACTIF/ACTIF**, recevant les exports Zabbix au format NDJSON et les publiant sur le topic primaire.
+
+**Layer 5 — Streaming et classification**  
+Cluster **Kafka 4.0 en mode KRaft** (sans ZooKeeper). **Kafka Streams** (Java) classifie en temps réel les métriques par vendor et les route vers des topics dédiés (`cisco-ios`, `cisco-asav`, `juniper`, `fortinet`). Replication factor 2.
+
+**Layer 6 — Transformation ECS**  
+Deux nœuds **Logstash en Active/Active**, exécutant **4 pipelines spécialisés** (un par vendor). Normalisation complète **ECS 8.11.0** des champs (`system.cpu.*`, `network.interface.*`, etc.). Load balancing automatique via consumer groups Kafka.
+
+**Layer 7 — Stockage et indexation**  
+**Cluster Elasticsearch 3 nœuds** Docker avec data streams par vendor. Convention de nommage : `metrics-<vendor>.<templateid>.<metricCategory>_snmp-default`. **ILM policies** : Hot 3 jours / Warm 30 jours / Cold archive long terme.
+
+<TechStack items={["Zabbix 7.x", "Apache Kafka 4.0 KRaft", "Kafka Streams", "Kafka Connect", "HAProxy", "Keepalived", "Logstash 8.x", "Elasticsearch 8.x", "Kibana", "PostgreSQL", "Docker", "ECS 8.11"]} />
 
 ## Réalisations
 
-- **Pipeline en production** sur 80+ équipements réseau, indexant ~2M de points de métrique par jour
-- **Latence end-to-end < 30 secondes** entre poll SNMP et apparition dans Kibana
-- **Tolérance aux pannes** : un worker Logstash qui tombe ne perd aucun message grâce au offset Kafka
-- **Dashboards Kibana** pour : interfaces saturées, équipements en panne, anomalies de trafic, top-N consommateurs
-- **Code Python custom** versionné, testé, documenté pour la couche Zabbix → Kafka
+- **~1000 équipements en production** monitorés en SNMP (Cisco IOS, Cisco ASAv, Juniper, Fortinet)
+- **23M+ documents indexés**, ~1M docs/jour de croissance, 21GB+ de données stockées
+- **Latence end-to-end < 3 minutes P95** (SLA visé : < 5 min)
+- **Zero SPOF sur 6 des 7 couches** : Active/Standby Zabbix, HAProxy MASTER/BACKUP, Kafka KRaft, Logstash A/A, cluster ES 3 nœuds
+- **4 pipelines Logstash spécialisés** par vendor avec normalisation **ECS 8.11.0**
+- **Kafka Streams** pour la classification automatique : un topic primaire route vers les topics vendor-spécifiques sans intervention humaine
+- **Cluster Kafka 4.0 KRaft** : mode moderne sans ZooKeeper, moins de moving parts à opérer
+- **ILM policies** Hot/Warm/Cold pour la gestion automatique du cycle de vie des indices
+- **Documentation runbook** pour chaque service : démarrage, restart, troubleshooting, scénarios de failover
 
 <Callout type="info" title="Pourquoi pas Telegraf ou Prometheus ?">
-Telegraf SNMP marche bien mais ne gère pas aussi bien le buffering inter-systèmes que Kafka. Prometheus est pull-based et ne match pas le modèle Zabbix existant. Garder Zabbix en collecte primaire et le router vers Elastic via Kafka était le compromis qui respectait le legacy tout en débloquant les nouveaux cas d'usage.
+Telegraf SNMP marche bien mais ne gère pas aussi élégamment le buffering inter-systèmes ni la classification multi-vendor que Kafka + Kafka Streams. Prometheus est pull-based et ne match pas le modèle Zabbix existant. Garder Zabbix en collecte primaire et le router vers Elastic via Kafka était le compromis qui respectait le legacy tout en débloquant les nouveaux cas d'usage analytiques.
 </Callout>
 
 ## Leçons
 
-- **Kafka justifie sa complexité quand il y a plus de 2 systèmes downstream.** Pour un seul consumer, un buffer Redis aurait suffi. Avec Logstash + des consumers analytiques additionnels prévus, Kafka prenait sens.
-- **PySNMP est puissant mais piégeur.** Les MIBs vendor-specific demandent un travail de mapping qui n'est jamais documenté. J'ai constitué une mini-bibliothèque de MIBs traduites au fil des équipements rencontrés.
-- **Kibana shine quand les data sont déjà enrichies.** 70% du temps passé sur ce projet était sur les filtres Logstash (geo, tags, parsing), pas sur Kibana lui-même.
+- **Kafka KRaft change la donne.** Plus besoin de ZooKeeper pour gérer le quorum cluster — moins de moving parts, configuration plus simple, mêmes garanties de durabilité. Si tu démarres un cluster Kafka aujourd'hui, KRaft est le bon défaut.
+- **Quand tu monitores tout le reste, tu dois être plus fiable que tout le reste.** HA à chaque couche (Active/Standby Zabbix, HAProxy+Keepalived, Logstash A/A, cluster ES) n'est pas du gold-plating. C'est ce qui distingue un système de monitoring qu'on respecte d'un système qu'on contourne avec des scripts manuels au premier incident.
+- **Multi-vendor SNMP : les MIBs sont le vrai enjeu.** Cisco IOS, ASAv, Juniper, Fortinet exposent leurs métriques différemment. Le travail de mapping MIB → ECS représente 70% du temps de ce projet. Une fois le mapping fait, les dashboards Kibana deviennent uniformes peu importe le vendor — gros payoff long terme.
