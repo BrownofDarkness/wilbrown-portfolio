@@ -5,42 +5,54 @@ title: "Local environment overhaul for lumidata.ai"
 client: "IBAASS Labs"
 period: "Jan 2024 — Feb 2025"
 role: "Python Developer · Infrastructure"
-summary: "Migration from a fragmented dev setup to a clean virtualized stack — ESXi hypervisor, internal VPN, reverse proxy, automated SSL certificates, private DNS."
-tags: ["Infra", "Networking", "Security", "DevOps"]
-stack: ["VMware ESXi", "Ubuntu LTS", "Nginx", "OpenVPN", "Pritunl", "Pritunl Zero", "AWS EC2", "AWS Route 53", "Let's Encrypt"]
+summary: "Migration from a fragmented dev setup to a two-tier stack — AWS edge for SSL/SSO/VPN, VMware ESXi LAN for the application stack (Elasticsearch cluster + observability), with strict network isolation."
+tags: ["Infra", "Networking", "Security", "DevOps", "Observability"]
+stack: ["VMware ESXi", "Ubuntu LTS", "AWS EC2", "Nginx", "Pritunl Zero", "Pritunl VPN", "OpenVPN", "MongoDB", "Elasticsearch", "Kibana", "APM Server", "Let's Encrypt"]
 confidential: false
 locale: "en"
 ---
 
-Lumidata.ai is a data analytics platform built at IBAASS Labs. When I joined the team in January 2024, the dev environment was a patchwork of services running on laptops, improvised network shares, and exposed services with no clear hygiene. The mission: rebuild a clean, secure, reproducible local environment for the whole team.
+Lumidata.ai is a data analytics platform built at IBAASS Labs. When I joined the team in January 2024, the environment was a patchwork of services running on laptops, improvised network shares, and exposed services with no clear hygiene. The mission: rebuild a complete, secure infrastructure — a cloud edge, a virtualized internal LAN, and all the surrounding tooling (SSO, VPN, observability).
 
 ## Context
 
-The team was working on a fast-moving data product. Every dev had their own local Postgres instance, their own SSH tunnels to reach staging services, and nobody knew exactly which version of which dependency was running where. The cost: 2-3 hours lost every week to environment setup, recurring "works on my machine" bugs, and tangible security risk (services exposed in plaintext on the office network).
+The team was working on a fast-moving data product. Every dev had their own local instance, their own SSH tunnels to reach staging services, and nobody knew exactly which version of which dependency was running where. The cost: 2-3 hours lost every week to environment setup, recurring "works on my machine" bugs, and tangible security risk (services exposed in plaintext on the office network).
 
-The goal was to lay the foundations of a versionable, virtualized, remote-accessible dev environment that would also prepare the production infra layer.
+The goal was to lay the foundations of a two-tier infrastructure: a **public-facing cloud edge** handling SSL/SSO/VPN, and a **virtualized internal network** hosting the application stack — with strict isolation between the two.
 
 ## Architecture
 
-I chose **VMware ESXi** as the hypervisor (on internal bare-metal server), provisioning Ubuntu LTS VMs for each role:
+I designed a **dual-network architecture**:
 
-- one VM per backend service (Django + dedicated Postgres),
-- one "edge" VM hosting **Nginx** as the single reverse proxy for all internal apps,
-- one **Pritunl** VM (OpenVPN web UI) to manage the team's VPN.
+**Edge side, on AWS** — an **EC2 Ubuntu LTS** instance plays three roles:
 
-The **OpenVPN tunnel** let the team access internal services from anywhere without exposing anything to the open Internet. **Pritunl Zero** was added later for SSO across internal tools.
+- SSL termination through **Nginx** with auto-renewed **Let's Encrypt** certificates
+- **SSO authentication** via **Pritunl Zero** for every internal service
+- **OpenVPN endpoint** managed through **Pritunl VPN** (MongoDB backend)
 
-For **internal DNS resolution**, I set up a private zone on **AWS Route 53** (via a lightweight EC2 instance relaying requests), letting devs use `*.internal.lumidata.ai` names instead of IPs. SSL certificates were automated through **Let's Encrypt + DNS-01 challenge** (which works for non-public internal names).
+**LAN side, on VMware ESXi** (internal bare-metal server) — 9 Ubuntu VMs provisioned with distinct roles:
 
-<TechStack items={["VMware ESXi", "Ubuntu LTS", "Nginx", "OpenVPN", "Pritunl", "Pritunl Zero", "AWS EC2", "AWS Route 53", "Let's Encrypt", "Certbot DNS-01"]} />
+- 1 **jumper VM** bridging the encrypted VPN network and the VMware LAN — strict isolation
+- 1 **Nginx load balancer** in front of the application layer
+- 1 **frontend** serving the SPA
+- 1 **backend** exposing the APIs
+- 3 **Elasticsearch nodes** clustered for search/indexing
+- 1 **Kibana** for visualization
+- 1 **APM Server** for application tracing
+
+The user flow: HTTPS connection to the AWS edge → Pritunl Zero SSO auth → VPN tunnel to the jumper → routing into the internal LAN. The internal network is never exposed directly to the Internet — only the edge is.
+
+<TechStack items={["VMware ESXi", "Ubuntu LTS", "AWS EC2", "Nginx", "Pritunl Zero", "Pritunl VPN", "OpenVPN", "MongoDB", "Elasticsearch", "Kibana", "APM Server", "Let's Encrypt"]} />
 
 ## Outcomes
 
-- **6 VMs provisioned and configured**, each with a clear role and runbook
-- **Active VPN** for the whole dev team — access from the office, from home, from outside
-- **Nginx reverse proxy** with Let's Encrypt SSL on 100% of internal endpoints
-- **Private DNS** through Route 53 — no more hardcoded IPs
-- **Zero-downtime migration** of existing services to the new VMs (coordinated DNS cutover orchestration)
+- **AWS edge operational**: automated SSL + unified SSO + VPN endpoint
+- **9 ESXi VMs in production** on the internal LAN, each with a clear role and runbook
+- **3-node Elasticsearch cluster** running for search/indexing
+- **Kibana + APM Server observability stack** deployed
+- **Unified Pritunl Zero SSO** — one login across all internal services
+- **AES-128-GCM encrypted VPN tunnel** for LAN access without Internet exposure
+- **Jumper VM pattern**: bridge between VPN and VMware LAN = strict network isolation
 - **Runbook documentation** for every service: start, restart, troubleshoot
 
 <Callout type="note" title="Why ESXi">
@@ -51,6 +63,6 @@ I hesitated with Proxmox (open source, more modern), but ESXi was already runnin
 
 Three things I learned on this engagement:
 
-1. **Internal DNS is the pivot of everything.** As long as services call each other by IP, nothing is portable. Once you're on `*.internal.lumidata.ai`, moving a VM = changing one DNS record, without touching code.
+1. **The jumper VM pattern is one of the cleanest ways to isolate an internal LAN.** Rather than NAT-ing the edge directly into the LAN, routing traffic through a dedicated VM that bridges VPN ↔ LAN gives you a clear boundary and a centralized filtering point. When something goes wrong on the network side, everything converges on that single chokepoint — easy to observe, easy to harden.
 2. **Pritunl is underrated.** The web UI for managing OpenVPN + Pritunl Zero for internal SSO covers 80% of a small team's VPN/SSO needs without the complexity of Keycloak or Okta.
 3. **The runbook beats the architecture.** Elegant but undocumented infra = single-person-dependency. Every service I set up has a one-page markdown with the basic commands. That's what let the team stay autonomous after I left.
