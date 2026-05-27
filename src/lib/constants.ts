@@ -4,7 +4,7 @@ export const SITE = {
   role: "Développeur full-stack",
   location: "Yaoundé, Cameroun",
   email: "takoubrown@gmail.com",
-  url: "https://wilfriedbrown.dev",
+  url: "https://wilbrown-innova.com",
   twitter: "@BrownofDarkness",
   // Set both to empty string when you don't want to broadcast availability
   // — the AvailabilityPill component hides itself when the localized

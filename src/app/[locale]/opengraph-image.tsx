@@ -132,8 +132,8 @@ export default async function OpengraphImage() {
                 flexDirection: "column",
               }}
             >
-              <span>Je code des apps. Je tiens les serveurs.</span>
-              <span style={{ color: "#9ba4b2" }}>Le reste s'apprend.</span>
+              <span>I build apps. I run the servers.</span>
+              <span style={{ color: "#9ba4b2" }}>The rest is learned.</span>
             </p>
             <p
               style={{
@@ -143,7 +143,7 @@ export default async function OpengraphImage() {
                 fontFamily: "monospace",
               }}
             >
-              Flutter / Django / Linux · Yaoundé, Cameroun
+              Flutter / Django / Linux · Yaoundé, Cameroon
             </p>
           </div>
         </div>

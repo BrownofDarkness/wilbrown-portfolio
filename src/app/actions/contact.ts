@@ -98,7 +98,7 @@ function renderHtml({
         <!-- Footer -->
         <tr><td style="padding:20px 32px;background:#010c1f;border-top:1px solid #18223a;">
           <p style="margin:0;font-size:11px;line-height:1.6;color:#4a5366;font-family:'SF Mono','Menlo','Courier New',monospace;">
-            Envoy&eacute; depuis <a href="${esc(SITE.url)}" style="color:#5bccc4;text-decoration:none;">wilfriedbrown.dev</a> &middot; R&eacute;ponds directement &agrave; cet email pour contacter ${esc(name)}.
+            Envoy&eacute; depuis <a href="${esc(SITE.url)}" style="color:#5bccc4;text-decoration:none;">wilbrown-innova.com</a> &middot; R&eacute;ponds directement &agrave; cet email pour contacter ${esc(name)}.
           </p>
         </td></tr>
 
