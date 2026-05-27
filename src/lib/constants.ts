@@ -10,8 +10,8 @@ export const SITE = {
   // — the AvailabilityPill component hides itself when the localized
   // string is empty.
   availability: {
-    fr: "Disponible mai–août 2026",
-    en: "Available May–Aug 2026",
+    fr: "Disponible · Ouvert aux missions",
+    en: "Available · Open to work",
   },
   socials: {
     github: "https://github.com/BrownofDarkness",
