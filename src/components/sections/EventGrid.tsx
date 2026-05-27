@@ -247,6 +247,17 @@ function GalleryLightbox({
   const total = photos.length;
   const dateDisplay = formatEventMonth(event.month, locale);
 
+  // Read the current theme from the html dataset (set by ThemeToggle).
+  // Same pattern as MobileMenu so the lightbox backdrop matches the page
+  // theme instead of forcing dark navy regardless.
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  useEffect(() => {
+    const current = document.documentElement.dataset.theme;
+    setTheme(current === "light" ? "light" : "dark");
+  }, []);
+  const backdropColor =
+    theme === "light" ? "rgba(242, 238, 232, 0.94)" : "rgba(1, 12, 31, 0.94)";
+
   const THUMB_WINDOW = 7;
   const thumbStart = Math.max(
     0,
@@ -267,7 +278,7 @@ function GalleryLightbox({
       aria-label={event.edition}
       className="fixed inset-0 z-[70] flex flex-col"
       style={{
-        backgroundColor: "rgba(1, 12, 31, 0.94)",
+        backgroundColor: backdropColor,
         backdropFilter: "blur(28px)",
         WebkitBackdropFilter: "blur(28px)",
       }}

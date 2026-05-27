@@ -349,6 +349,15 @@ function ShowcaseModal({
   labels: ShowcaseLabels;
   onClose: () => void;
 }) {
+  // Same theme-aware backdrop pattern as MobileMenu + EventGrid lightbox.
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  useEffect(() => {
+    const current = document.documentElement.dataset.theme;
+    setTheme(current === "light" ? "light" : "dark");
+  }, []);
+  const backdropColor =
+    theme === "light" ? "rgba(242, 238, 232, 0.85)" : "rgba(1, 12, 31, 0.85)";
+
   return (
     <div
       role="dialog"
@@ -357,7 +366,7 @@ function ShowcaseModal({
       className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-8"
       onClick={onClose}
       style={{
-        backgroundColor: "rgba(1, 12, 31, 0.85)",
+        backgroundColor: backdropColor,
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
       }}
