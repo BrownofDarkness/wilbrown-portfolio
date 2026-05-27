@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, Maximize2, Star, X } from "lucide-react";
+import { ExternalLink, Maximize2, Sparkles, Star, X } from "lucide-react";
 import {
   AppleIcon,
   GithubIcon,
@@ -85,7 +85,12 @@ export function ShowcaseGrid({
   if (entries.length === 0) {
     return (
       <div className="mt-16 rounded-2xl border border-dashed border-border-subtle bg-bg-elevated/40 p-12 text-center">
-        <p className="font-mono text-sm text-fg-muted">{labels.empty}</p>
+        <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-accent/30 bg-accent/5">
+          <Sparkles size={20} className="text-accent" aria-hidden />
+        </div>
+        <p className="mx-auto mt-5 max-w-md text-base text-fg-muted">
+          {labels.empty}
+        </p>
       </div>
     );
   }
@@ -172,7 +177,7 @@ function ShowcaseCard({
   ].filter(Boolean).length;
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-bg-elevated transition-colors hover:border-accent">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-bg-elevated transition-all duration-300 hover:border-accent hover:shadow-[0_12px_40px_-12px] hover:shadow-accent/25">
       {/* Ghost number — sits behind content as decoration */}
       <span
         aria-hidden
@@ -215,7 +220,7 @@ function ShowcaseCard({
         <p className="font-mono text-xs text-fg-subtle">
           {entry.year} · {labels.types[entry.type]}
         </p>
-        <h3 className="mt-2 text-lg font-semibold text-fg sm:text-xl">
+        <h3 className="mt-2 text-lg font-semibold text-fg transition-colors duration-300 group-hover:text-accent sm:text-xl">
           {entry.title}
         </h3>
         <p className="mt-3 flex-1 text-sm leading-relaxed text-fg-muted">

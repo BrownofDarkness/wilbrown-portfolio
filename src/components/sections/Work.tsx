@@ -27,12 +27,12 @@ export async function Work() {
             <Link
               key={slug}
               href={`/work/${slug}`}
-              className="group flex flex-col rounded-2xl border border-border bg-bg-elevated p-8 transition-colors hover:border-accent"
+              className="group flex flex-col rounded-2xl border border-border bg-bg-elevated p-8 transition-all duration-300 hover:border-accent hover:shadow-[0_12px_40px_-12px] hover:shadow-accent/25"
             >
               <p className="font-mono text-xs text-accent">
                 {String(i + 1).padStart(2, "0")}
               </p>
-              <h3 className="mt-3 text-xl font-semibold text-fg sm:text-2xl">
+              <h3 className="mt-3 text-xl font-semibold text-fg transition-colors duration-300 group-hover:text-accent sm:text-2xl">
                 {t(`projects.${slug}.title`)}
               </h3>
               <p className="mt-2 font-mono text-xs text-fg-subtle">

@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from "next-intl";
 import {
   Award,
   Calendar,
+  CalendarClock,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
@@ -73,7 +74,12 @@ export function EventGrid({ entries }: { entries: Event[] }) {
   if (entries.length === 0) {
     return (
       <div className="mt-16 rounded-2xl border border-dashed border-border-subtle bg-bg-elevated/40 p-12 text-center">
-        <p className="font-mono text-sm text-fg-muted">{t("empty")}</p>
+        <div className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-accent/30 bg-accent/5">
+          <CalendarClock size={20} className="text-accent" aria-hidden />
+        </div>
+        <p className="mx-auto mt-5 max-w-md text-base text-fg-muted">
+          {t("empty")}
+        </p>
       </div>
     );
   }
@@ -122,7 +128,7 @@ function EventCard({
   const dateDisplay = formatEventMonth(entry.month, locale);
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-bg-elevated transition-colors hover:border-accent">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-bg-elevated transition-all duration-300 hover:border-accent hover:shadow-[0_12px_40px_-12px] hover:shadow-accent/25">
       <span
         aria-hidden
         className="pointer-events-none absolute right-4 top-3 z-0 font-mono text-7xl font-bold tracking-tighter text-fg/[0.06] sm:text-8xl"
@@ -169,7 +175,9 @@ function EventCard({
       <div className="relative flex flex-1 flex-col p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="font-semibold text-fg">{entry.name}</p>
+            <p className="font-semibold text-fg transition-colors duration-300 group-hover:text-accent">
+              {entry.name}
+            </p>
             <p className="mt-1 text-sm text-accent">{entry.edition}</p>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-accent">
