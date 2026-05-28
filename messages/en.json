@@ -163,7 +163,12 @@
     },
     "modal": {
       "close": "Close",
-      "visit": "Visit"
+      "visit": "Visit",
+      "prev": "Previous",
+      "next": "Next",
+      "counter": "{current} / {total}",
+      "tags_label": "Tags",
+      "stack_label": "Stack"
     }
   },
   "events": {

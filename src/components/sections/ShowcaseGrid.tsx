@@ -1,9 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { ExternalLink, Maximize2, Sparkles, Star, X } from "lucide-react";
+import { useTranslations } from "next-intl";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Maximize2,
+  Sparkles,
+  Star,
+  X,
+} from "lucide-react";
 import {
   AppleIcon,
   GithubIcon,
@@ -13,6 +22,7 @@ import { Tag } from "@/components/ui/Tag";
 import {
   SHOWCASE_TYPES,
   type Showcase,
+  type ShowcaseOtherLink,
   type ShowcaseType,
 } from "@/lib/showcase-schema";
 import { cn } from "@/lib/utils";
@@ -46,30 +56,12 @@ export function ShowcaseGrid({
   labels: ShowcaseLabels;
 }) {
   const [filter, setFilter] = useState<FilterKey>("all");
-  const [selected, setSelected] = useState<Showcase | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    document.body.style.overflow = selected ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [selected]);
-
-  // Close on ESC
-  useEffect(() => {
-    if (!selected) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setSelected(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [selected]);
 
   // Which types are actually present? Hide pills for empty types.
   const availableTypes = useMemo(() => {
@@ -81,6 +73,37 @@ export function ShowcaseGrid({
     () => (filter === "all" ? entries : entries.filter((e) => e.type === filter)),
     [entries, filter],
   );
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    document.body.style.overflow = selectedIndex !== null ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selectedIndex]);
+
+  const navigate = useCallback(
+    (delta: number) => {
+      setSelectedIndex((prev) => {
+        if (prev === null) return prev;
+        const next = (prev + delta + visible.length) % visible.length;
+        return next;
+      });
+    },
+    [visible.length],
+  );
+
+  // Keyboard nav: Escape closes, arrows navigate
+  useEffect(() => {
+    if (selectedIndex === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedIndex(null);
+      else if (e.key === "ArrowLeft") navigate(-1);
+      else if (e.key === "ArrowRight") navigate(1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedIndex, navigate]);
 
   if (entries.length === 0) {
     return (
@@ -137,7 +160,7 @@ export function ShowcaseGrid({
               entry={entry}
               number={number}
               labels={labels}
-              onOpen={() => setSelected(entry)}
+              onOpen={() => setSelectedIndex(i)}
             />
           );
         })}
@@ -145,12 +168,16 @@ export function ShowcaseGrid({
 
       {/* Lightbox modal */}
       {mounted &&
-        selected &&
+        selectedIndex !== null &&
+        visible[selectedIndex] &&
         createPortal(
           <ShowcaseModal
-            entry={selected}
+            entry={visible[selectedIndex]}
+            index={selectedIndex}
+            total={visible.length}
             labels={labels}
-            onClose={() => setSelected(null)}
+            onNavigate={navigate}
+            onClose={() => setSelectedIndex(null)}
           />,
           document.body,
         )}
@@ -244,7 +271,7 @@ function ShowcaseCard({
 
         {linkCount > 0 && (
           <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border-subtle pt-4">
-            <LinkRow entry={entry} labels={labels} compact />
+            <CompactLinks entry={entry} labels={labels} />
           </div>
         )}
       </div>
@@ -252,43 +279,45 @@ function ShowcaseCard({
   );
 }
 
-function LinkRow({
+/**
+ * Compact text-only link row used on the cards themselves. Stays
+ * uppercase mono. Renders the 4 typed link fields. Cards keep things
+ * minimal — full link set (incl. otherLinks) lives in the modal.
+ */
+function CompactLinks({
   entry,
   labels,
-  compact = false,
 }: {
   entry: Showcase;
   labels: ShowcaseLabels;
-  compact?: boolean;
 }) {
-  const Link = compact ? CompactLink : FullLink;
   return (
     <>
       {entry.repoUrl && (
-        <Link
+        <CompactLink
           href={entry.repoUrl}
-          icon={<GithubIcon size={compact ? 12 : 14} />}
+          icon={<GithubIcon size={12} />}
           label={labels.links.repo}
         />
       )}
       {entry.liveUrl && (
-        <Link
+        <CompactLink
           href={entry.liveUrl}
-          icon={<ExternalLink size={compact ? 12 : 14} />}
+          icon={<ExternalLink size={12} />}
           label={labels.links.live}
         />
       )}
       {entry.playStoreUrl && (
-        <Link
+        <CompactLink
           href={entry.playStoreUrl}
-          icon={<PlayStoreIcon size={compact ? 12 : 14} />}
+          icon={<PlayStoreIcon size={12} />}
           label={labels.links.play_store}
         />
       )}
       {entry.appStoreUrl && (
-        <Link
+        <CompactLink
           href={entry.appStoreUrl}
-          icon={<AppleIcon size={compact ? 12 : 14} />}
+          icon={<AppleIcon size={12} />}
           label={labels.links.app_store}
         />
       )}
@@ -318,38 +347,127 @@ function CompactLink({
   );
 }
 
-function FullLink({
-  href,
-  icon,
-  label,
-}: {
-  href: string;
-  icon: React.ReactNode;
+/* ────────────────────────────────────────────────────────────────────
+ * Modal — 2-column on desktop, single-column on mobile.
+ * Prev/next chevrons + keyboard ← → navigate through the visible set.
+ * CTA hierarchy: 1 primary (Live / Play / App / Repo) + N secondary
+ * (repo + remaining stores + otherLinks). Tags inline mono, stack pills.
+ * ──────────────────────────────────────────────────────────────────── */
+
+type PrimaryActionData = {
+  url: string;
   label: string;
-}) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-2 rounded-full border border-border bg-bg-elevated px-4 py-2 text-sm text-fg transition-colors hover:border-accent hover:text-accent"
-    >
-      <span aria-hidden>{icon}</span>
-      {label}
-    </a>
-  );
+  icon: React.ReactNode;
+};
+
+function getPrimaryAction(
+  entry: Showcase,
+  labels: ShowcaseLabels,
+): PrimaryActionData | null {
+  // Library: code is the headline. For everything else, live demo wins,
+  // then stores, then repo.
+  if (entry.type === "library" && entry.repoUrl) {
+    return {
+      url: entry.repoUrl,
+      label: labels.links.repo,
+      icon: <GithubIcon size={14} />,
+    };
+  }
+  if (entry.liveUrl) {
+    return {
+      url: entry.liveUrl,
+      label: labels.links.live,
+      icon: <ExternalLink size={14} />,
+    };
+  }
+  if (entry.playStoreUrl) {
+    return {
+      url: entry.playStoreUrl,
+      label: labels.links.play_store,
+      icon: <PlayStoreIcon size={14} />,
+    };
+  }
+  if (entry.appStoreUrl) {
+    return {
+      url: entry.appStoreUrl,
+      label: labels.links.app_store,
+      icon: <AppleIcon size={14} />,
+    };
+  }
+  if (entry.repoUrl) {
+    return {
+      url: entry.repoUrl,
+      label: labels.links.repo,
+      icon: <GithubIcon size={14} />,
+    };
+  }
+  return null;
+}
+
+function getSecondaryActions(
+  entry: Showcase,
+  labels: ShowcaseLabels,
+  primary: PrimaryActionData | null,
+): { url: string; label: string; icon: React.ReactNode }[] {
+  const list: { url: string; label: string; icon: React.ReactNode }[] = [];
+  const isPrimary = (url: string | null) => url && primary && url === primary.url;
+
+  if (entry.repoUrl && !isPrimary(entry.repoUrl)) {
+    list.push({
+      url: entry.repoUrl,
+      label: labels.links.repo,
+      icon: <GithubIcon size={14} />,
+    });
+  }
+  if (entry.liveUrl && !isPrimary(entry.liveUrl)) {
+    list.push({
+      url: entry.liveUrl,
+      label: labels.links.live,
+      icon: <ExternalLink size={14} />,
+    });
+  }
+  if (entry.playStoreUrl && !isPrimary(entry.playStoreUrl)) {
+    list.push({
+      url: entry.playStoreUrl,
+      label: labels.links.play_store,
+      icon: <PlayStoreIcon size={14} />,
+    });
+  }
+  if (entry.appStoreUrl && !isPrimary(entry.appStoreUrl)) {
+    list.push({
+      url: entry.appStoreUrl,
+      label: labels.links.app_store,
+      icon: <AppleIcon size={14} />,
+    });
+  }
+  for (const link of entry.otherLinks) {
+    list.push({
+      url: link.url,
+      label: link.label,
+      icon: <ExternalLink size={14} />,
+    });
+  }
+  return list;
 }
 
 function ShowcaseModal({
   entry,
+  index,
+  total,
   labels,
+  onNavigate,
   onClose,
 }: {
   entry: Showcase;
+  index: number;
+  total: number;
   labels: ShowcaseLabels;
+  onNavigate: (delta: number) => void;
   onClose: () => void;
 }) {
-  // Same theme-aware backdrop pattern as MobileMenu + EventGrid lightbox.
+  const t = useTranslations("showcase.modal");
+
+  // Theme-aware backdrop matching MobileMenu + EventGrid lightbox.
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   useEffect(() => {
     const current = document.documentElement.dataset.theme;
@@ -357,6 +475,10 @@ function ShowcaseModal({
   }, []);
   const backdropColor =
     theme === "light" ? "rgba(242, 238, 232, 0.85)" : "rgba(1, 12, 31, 0.85)";
+
+  const primary = getPrimaryAction(entry, labels);
+  const secondary = getSecondaryActions(entry, labels, primary);
+  const showNav = total > 1;
 
   return (
     <div
@@ -371,8 +493,24 @@ function ShowcaseModal({
         WebkitBackdropFilter: "blur(20px)",
       }}
     >
+      {/* Prev chevron — outside the card, hidden on small screens */}
+      {showNav && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onNavigate(-1);
+          }}
+          aria-label={t("prev")}
+          className="absolute left-4 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-bg-elevated/80 text-fg backdrop-blur transition-colors hover:border-accent hover:text-accent md:inline-flex"
+        >
+          <ChevronLeft size={20} />
+        </button>
+      )}
+
       <div
-        className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-border bg-bg-elevated shadow-2xl"
+        className="relative grid w-full max-w-5xl overflow-hidden rounded-2xl border border-border bg-bg-elevated shadow-2xl md:grid-cols-[3fr_2fr]"
+        style={{ maxHeight: "min(90vh, 720px)" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -385,14 +523,14 @@ function ShowcaseModal({
           <X size={16} />
         </button>
 
-        {/* Image */}
-        {entry.image && (
-          <div className="relative aspect-[16/10] w-full overflow-hidden bg-bg">
+        {/* Image column */}
+        {entry.image ? (
+          <div className="relative aspect-[4/3] w-full overflow-hidden bg-bg md:aspect-auto md:h-full">
             <Image
               src={entry.image}
               alt={entry.title}
               fill
-              sizes="(min-width: 1024px) 900px, 100vw"
+              sizes="(min-width: 1024px) 600px, 100vw"
               className="object-cover"
               unoptimized
               priority
@@ -404,61 +542,107 @@ function ShowcaseModal({
               </span>
             )}
           </div>
+        ) : (
+          <div className="aspect-[4/3] w-full border-b border-border-subtle bg-bg md:aspect-auto md:h-full md:border-b-0 md:border-r" />
         )}
 
-        {/* Body */}
-        <div className="p-6 sm:p-8">
+        {/* Content column (scrollable on overflow) */}
+        <div className="flex max-h-[60vh] flex-col overflow-y-auto p-6 sm:p-8 md:max-h-none">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-fg-subtle">
             {entry.year} · {labels.types[entry.type]}
           </p>
           <h2 className="mt-3 font-sans text-2xl font-bold tracking-tight text-fg sm:text-3xl">
             {entry.title}
           </h2>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-fg-muted">
+          <p className="mt-4 text-sm leading-relaxed text-fg-muted sm:text-base">
             {entry.description}
           </p>
 
-          {/* Tags + stack */}
-          {(entry.tags.length > 0 || entry.stack.length > 0) && (
-            <div className="mt-6 space-y-3">
-              {entry.tags.length > 0 && (
-                <div>
-                  <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-fg-subtle">
-                    Tags
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {entry.tags.map((tag) => (
-                      <Tag key={tag}>{tag}</Tag>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {entry.stack.length > 0 && (
-                <div>
-                  <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-fg-subtle">
-                    Stack
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {entry.stack.map((s) => (
-                      <Tag key={s}>{s}</Tag>
-                    ))}
-                  </div>
-                </div>
-              )}
+          {/* Tags — inline mono, comma-separated visually via · separator */}
+          {entry.tags.length > 0 && (
+            <div className="mt-5">
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-fg-subtle">
+                {t("tags_label")}
+              </p>
+              <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.05em] text-fg-muted">
+                {entry.tags.join(" · ")}
+              </p>
             </div>
           )}
 
-          {/* Action buttons */}
-          {(entry.repoUrl ||
-            entry.liveUrl ||
-            entry.playStoreUrl ||
-            entry.appStoreUrl) && (
-            <div className="mt-8 flex flex-wrap gap-2 border-t border-border-subtle pt-6">
-              <LinkRow entry={entry} labels={labels} />
+          {/* Stack — bordered pills, more visual weight */}
+          {entry.stack.length > 0 && (
+            <div className="mt-5">
+              <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.2em] text-fg-subtle">
+                {t("stack_label")}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {entry.stack.map((s) => (
+                  <Tag key={s}>{s}</Tag>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* CTAs */}
+          {(primary || secondary.length > 0) && (
+            <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-border-subtle pt-6">
+              {primary && (
+                <a
+                  href={primary.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-10 items-center gap-2 rounded-full bg-accent px-5 font-medium text-navy-dark transition-colors hover:bg-accent-soft"
+                >
+                  <span aria-hidden>{primary.icon}</span>
+                  {primary.label}
+                </a>
+              )}
+              {secondary.map((link) => (
+                <a
+                  key={link.url}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-10 items-center gap-2 rounded-full border border-border bg-bg-elevated px-4 text-sm text-fg transition-colors hover:border-accent hover:text-accent"
+                >
+                  <span aria-hidden>{link.icon}</span>
+                  {link.label}
+                </a>
+              ))}
             </div>
           )}
         </div>
       </div>
+
+      {/* Next chevron */}
+      {showNav && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onNavigate(1);
+          }}
+          aria-label={t("next")}
+          className="absolute right-4 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-bg-elevated/80 text-fg backdrop-blur transition-colors hover:border-accent hover:text-accent md:inline-flex"
+        >
+          <ChevronRight size={20} />
+        </button>
+      )}
+
+      {/* Counter — bottom center on desktop, mobile gets a thumb strip
+          equivalent later if needed */}
+      {showNav && (
+        <p
+          className="absolute bottom-4 left-1/2 -translate-x-1/2 font-mono text-[11px] uppercase tracking-[0.2em] text-fg-subtle"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {t("counter", { current: index + 1, total })}
+        </p>
+      )}
     </div>
   );
 }
+
+// Re-export type for other components if needed
+export type { ShowcaseOtherLink };
