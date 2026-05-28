@@ -155,6 +155,13 @@
       "experiment": "Experiment",
       "workflow": "Workflow"
     },
+    "status": {
+      "live": "Live",
+      "wip": "WIP",
+      "archived": "Archived",
+      "sunset": "Sunset"
+    },
+    "stack_label": "Stack",
     "links": {
       "repo": "GitHub",
       "live": "Live",

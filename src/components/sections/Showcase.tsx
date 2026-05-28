@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Reveal } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
 import { getPublicShowcase } from "@/lib/showcase";
-import { SHOWCASE_TYPES } from "@/lib/showcase-schema";
+import { SHOWCASE_STATUSES, SHOWCASE_TYPES } from "@/lib/showcase-schema";
 import {
   ShowcaseGrid,
   type ShowcaseLabels,
@@ -19,6 +19,10 @@ export async function Showcase() {
     types: Object.fromEntries(
       SHOWCASE_TYPES.map((type) => [type, t(`types.${type}`)]),
     ) as ShowcaseLabels["types"],
+    statuses: Object.fromEntries(
+      SHOWCASE_STATUSES.map((s) => [s, t(`status.${s}`)]),
+    ) as ShowcaseLabels["statuses"],
+    stack_label: t("stack_label"),
     links: {
       repo: t("links.repo"),
       live: t("links.live"),

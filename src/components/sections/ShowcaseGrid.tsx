@@ -23,6 +23,7 @@ import {
   SHOWCASE_TYPES,
   type Showcase,
   type ShowcaseOtherLink,
+  type ShowcaseStatus,
   type ShowcaseType,
 } from "@/lib/showcase-schema";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,8 @@ export type ShowcaseLabels = {
   featured: string;
   filter_all: string;
   types: Record<ShowcaseType, string>;
+  statuses: Record<ShowcaseStatus, string>;
+  stack_label: string;
   links: {
     repo: string;
     live: string;
@@ -47,6 +50,16 @@ export type ShowcaseLabels = {
     visit: string;
   };
 };
+
+/** Per-status visual style for the small status indicator on cards. */
+const STATUS_CLASSES: Record<ShowcaseStatus, { dot: string; text: string }> = {
+  live: { dot: "bg-accent", text: "text-accent" },
+  wip: { dot: "bg-amber-400", text: "text-amber-400" },
+  archived: { dot: "bg-fg-subtle", text: "text-fg-muted" },
+  sunset: { dot: "bg-red-400/80", text: "text-red-400/90" },
+};
+
+const MAX_STACK_VISIBLE = 4;
 
 export function ShowcaseGrid({
   entries,
@@ -244,18 +257,54 @@ function ShowcaseCard({
       )}
 
       <div className="relative flex flex-1 flex-col p-6">
-        <p className="font-mono text-xs text-fg-subtle">
-          {entry.year} · {labels.types[entry.type]}
-        </p>
+        {/* Eyebrow: year · type · status pill */}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-fg-subtle">
+          <span>
+            {entry.year} · {labels.types[entry.type]}
+          </span>
+          <span aria-hidden className="text-fg-subtle/60">
+            ·
+          </span>
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 uppercase tracking-[0.1em]",
+              STATUS_CLASSES[entry.status].text,
+            )}
+          >
+            <span
+              aria-hidden
+              className={cn(
+                "inline-block h-1.5 w-1.5 rounded-full",
+                STATUS_CLASSES[entry.status].dot,
+              )}
+            />
+            {labels.statuses[entry.status]}
+          </span>
+        </div>
+
         <h3 className="mt-2 text-lg font-semibold text-fg transition-colors duration-300 group-hover:text-accent sm:text-xl">
           {entry.title}
         </h3>
-        <p className="mt-3 flex-1 text-sm leading-relaxed text-fg-muted">
+        <p className="mt-3 text-sm leading-relaxed text-fg-muted">
           {entry.description}
         </p>
 
+        {/* Stack preview — inline mono, the tech-scan info */}
+        {entry.stack.length > 0 && (
+          <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.05em] text-fg-muted">
+            {entry.stack.slice(0, MAX_STACK_VISIBLE).join(" · ")}
+            {entry.stack.length > MAX_STACK_VISIBLE && (
+              <span className="text-fg-subtle">
+                {" "}
+                +{entry.stack.length - MAX_STACK_VISIBLE}
+              </span>
+            )}
+          </p>
+        )}
+
+        {/* Tags — small pills below stack, thematic markers */}
         {entry.tags.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-1.5">
+          <div className="mt-3 flex flex-wrap gap-1.5">
             {entry.tags.slice(0, MAX_TAGS_VISIBLE).map((tag) => (
               <Tag key={tag} className="text-[10px]">
                 {tag}
@@ -269,9 +318,10 @@ function ShowcaseCard({
           </div>
         )}
 
+        {/* CTAs — primary action + remaining compact links */}
         {linkCount > 0 && (
-          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border-subtle pt-4">
-            <CompactLinks entry={entry} labels={labels} />
+          <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border-subtle pt-4">
+            <CardLinks entry={entry} labels={labels} />
           </div>
         )}
       </div>
@@ -280,48 +330,55 @@ function ShowcaseCard({
 }
 
 /**
- * Compact text-only link row used on the cards themselves. Stays
- * uppercase mono. Renders the 4 typed link fields. Cards keep things
- * minimal — full link set (incl. otherLinks) lives in the modal.
+ * Card-level link row: one primary action (small filled cyan pill) +
+ * remaining typed links as compact mono. otherLinks stay in the modal —
+ * cards keep the CTA cluster minimal so the eye lands on the primary.
  */
-function CompactLinks({
+function CardLinks({
   entry,
   labels,
 }: {
   entry: Showcase;
   labels: ShowcaseLabels;
 }) {
+  const primary = getPrimaryAction(entry, labels);
+  const secondary = getSecondaryActions(entry, labels, primary).filter(
+    // Drop otherLinks on cards — they live in the modal where there's room
+    (link) => isTypedLink(entry, link.url),
+  );
+
   return (
     <>
-      {entry.repoUrl && (
-        <CompactLink
-          href={entry.repoUrl}
-          icon={<GithubIcon size={12} />}
-          label={labels.links.repo}
-        />
+      {primary && (
+        <a
+          href={primary.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex h-8 items-center gap-1.5 rounded-full bg-accent px-3 font-mono text-[11px] uppercase tracking-[0.05em] text-navy-dark transition-colors hover:bg-accent-soft"
+        >
+          <span aria-hidden>{primary.icon}</span>
+          {primary.label}
+        </a>
       )}
-      {entry.liveUrl && (
+      {secondary.map((link) => (
         <CompactLink
-          href={entry.liveUrl}
-          icon={<ExternalLink size={12} />}
-          label={labels.links.live}
+          key={link.url}
+          href={link.url}
+          icon={link.icon}
+          label={link.label}
         />
-      )}
-      {entry.playStoreUrl && (
-        <CompactLink
-          href={entry.playStoreUrl}
-          icon={<PlayStoreIcon size={12} />}
-          label={labels.links.play_store}
-        />
-      )}
-      {entry.appStoreUrl && (
-        <CompactLink
-          href={entry.appStoreUrl}
-          icon={<AppleIcon size={12} />}
-          label={labels.links.app_store}
-        />
-      )}
+      ))}
     </>
+  );
+}
+
+/** True if the URL matches one of the 4 typed link fields on the entry. */
+function isTypedLink(entry: Showcase, url: string): boolean {
+  return (
+    url === entry.repoUrl ||
+    url === entry.liveUrl ||
+    url === entry.playStoreUrl ||
+    url === entry.appStoreUrl
   );
 }
 
