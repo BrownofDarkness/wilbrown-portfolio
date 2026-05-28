@@ -186,6 +186,7 @@
     "back_home": "Back home",
     "empty": "No events added yet. Coming soon.",
     "featured": "Featured",
+    "upcoming": "Upcoming",
     "view_event": "View event",
     "view_gallery": "View gallery",
     "view_all": "View all events ({count})",

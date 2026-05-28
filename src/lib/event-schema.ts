@@ -77,6 +77,22 @@ export function yearFromMonth(month: string): number {
 }
 
 /**
+ * True when the event month is the current month or later — used to
+ * surface an "Upcoming" badge on event cards. Comparison is done at
+ * month granularity so an event still happening this month counts.
+ */
+export function isUpcomingMonth(
+  month: string,
+  now: Date = new Date(),
+): boolean {
+  const match = /^(\d{4})-(\d{2})$/.exec(month);
+  if (!match) return false;
+  const eventKey = Number(match[1]) * 100 + Number(match[2]);
+  const nowKey = now.getFullYear() * 100 + (now.getMonth() + 1);
+  return eventKey >= nowKey;
+}
+
+/**
  * Resolves the cover photo to display: the explicitly-chosen `coverPhoto`
  * if it still exists in the photos array, otherwise the first photo,
  * otherwise null.

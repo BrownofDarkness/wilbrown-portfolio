@@ -19,7 +19,13 @@ import {
   User,
   X,
 } from "lucide-react";
-import { formatEventMonth, getCoverPhoto, type Event, type EventRole } from "@/lib/event-schema";
+import {
+  formatEventMonth,
+  getCoverPhoto,
+  isUpcomingMonth,
+  type Event,
+  type EventRole,
+} from "@/lib/event-schema";
 import { cn } from "@/lib/utils";
 
 const ROLE_ICONS: Record<EventRole, typeof User> = {
@@ -126,6 +132,7 @@ function EventCard({
   const RoleIcon = ROLE_ICONS[entry.role];
   const cover = getCoverPhoto(entry);
   const dateDisplay = formatEventMonth(entry.month, locale);
+  const upcoming = isUpcomingMonth(entry.month);
 
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-bg-elevated transition-all duration-300 hover:border-accent hover:shadow-[0_12px_40px_-12px] hover:shadow-accent/25">
@@ -151,12 +158,32 @@ function EventCard({
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             unoptimized
           />
+          {/* Featured badge top-left */}
           {entry.featured && (
             <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-accent/40 bg-bg/80 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-accent backdrop-blur">
               <Star size={10} fill="currentColor" />
               {t("featured")}
             </span>
           )}
+          {/* Upcoming badge — top-right (or below featured if both present) */}
+          {upcoming && (
+            <span
+              className={cn(
+                "absolute right-3 inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-bg/80 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-accent backdrop-blur",
+                entry.featured ? "top-12" : "top-3",
+              )}
+            >
+              <span
+                aria-hidden
+                className="relative inline-flex h-1.5 w-1.5"
+              >
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+              </span>
+              {t("upcoming")}
+            </span>
+          )}
+          {/* Photo count bottom-right */}
           {entry.photos.length > 1 && (
             <span className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full border border-border bg-bg/80 px-3 py-1.5 font-mono text-[11px] text-fg backdrop-blur">
               <Images size={12} />
@@ -174,13 +201,17 @@ function EventCard({
 
       <div className="relative flex flex-1 flex-col p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="font-semibold text-fg transition-colors duration-300 group-hover:text-accent">
+          <div className="min-w-0 flex-1">
+            {/* Eyebrow: organization name — small mono */}
+            <p className="font-mono text-[11px] uppercase tracking-[0.15em] text-fg-subtle">
               {entry.name}
             </p>
-            <p className="mt-1 text-sm text-accent">{entry.edition}</p>
+            {/* Title: the actual edition — bold, prominent */}
+            <h3 className="mt-1 text-lg font-semibold text-fg transition-colors duration-300 group-hover:text-accent sm:text-xl">
+              {entry.edition}
+            </h3>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-accent">
+          <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] text-accent">
             <RoleIcon size={11} />
             {t(`roles.${entry.role}`)}
           </span>
@@ -201,29 +232,32 @@ function EventCard({
           {entry.description}
         </p>
 
-        <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border-subtle pt-4">
-          {entry.eventUrl && (
-            <a
-              href={entry.eventUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.05em] text-fg-muted transition-colors hover:text-accent"
-            >
-              <ExternalLink size={12} />
-              {t("view_event")}
-            </a>
-          )}
-          {entry.photos.length > 0 && (
-            <button
-              type="button"
-              onClick={() => onOpenGallery(0)}
-              className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.05em] text-fg-muted transition-colors hover:text-accent"
-            >
-              <Images size={12} />
-              {t("view_gallery")}
-            </button>
-          )}
-        </div>
+        {/* CTAs — Gallery is the primary action (proof of attendance) */}
+        {(entry.photos.length > 0 || entry.eventUrl) && (
+          <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-border-subtle pt-4">
+            {entry.photos.length > 0 && (
+              <button
+                type="button"
+                onClick={() => onOpenGallery(0)}
+                className="inline-flex h-8 items-center gap-1.5 rounded-full bg-accent px-3 font-mono text-[11px] uppercase tracking-[0.05em] text-navy-dark transition-colors hover:bg-accent-soft"
+              >
+                <Images size={12} />
+                {t("view_gallery")}
+              </button>
+            )}
+            {entry.eventUrl && (
+              <a
+                href={entry.eventUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.05em] text-fg-muted transition-colors hover:text-accent"
+              >
+                <ExternalLink size={12} />
+                {t("view_event")}
+              </a>
+            )}
+          </div>
+        )}
       </div>
     </article>
   );
@@ -246,10 +280,9 @@ function GalleryLightbox({
   const current = photos[index];
   const total = photos.length;
   const dateDisplay = formatEventMonth(event.month, locale);
+  const RoleIcon = ROLE_ICONS[event.role];
 
-  // Read the current theme from the html dataset (set by ThemeToggle).
-  // Same pattern as MobileMenu so the lightbox backdrop matches the page
-  // theme instead of forcing dark navy regardless.
+  // Theme-aware backdrop matching MobileMenu + ShowcaseModal pattern.
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   useEffect(() => {
     const current = document.documentElement.dataset.theme;
@@ -284,22 +317,55 @@ function GalleryLightbox({
       }}
       onClick={onClose}
     >
+      {/* Enriched header: keeps the context the card had (role + location)
+          alongside name/edition/date. EventUrl icon button + close. */}
       <div
-        className="flex items-center justify-between border-b border-border-subtle/40 px-4 py-3 sm:px-6 sm:py-4"
+        className="flex items-start justify-between gap-4 border-b border-border-subtle/40 px-4 py-3 sm:px-6 sm:py-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
+          {/* Name eyebrow */}
           <p className="truncate font-mono text-[11px] uppercase tracking-[0.2em] text-fg-subtle">
-            {event.name} · {dateDisplay}
+            {event.name}
           </p>
+          {/* Edition title — primary */}
           <p className="mt-0.5 truncate font-sans text-base font-semibold text-fg sm:text-lg">
             {event.edition}
           </p>
+          {/* Meta line: role + date + location */}
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] text-fg-muted">
+            <span className="inline-flex items-center gap-1.5 text-accent">
+              <RoleIcon size={11} />
+              <span className="uppercase tracking-[0.1em]">
+                {t(`roles.${event.role}`)}
+              </span>
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Calendar size={11} />
+              {dateDisplay}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin size={11} />
+              {event.location}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2">
           <span className="hidden font-mono text-xs text-fg-muted sm:inline-flex">
             {t("modal.counter", { current: index + 1, total })}
           </span>
+          {event.eventUrl && (
+            <a
+              href={event.eventUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={t("view_event")}
+              title={t("view_event")}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-bg-elevated text-fg transition-colors hover:border-accent hover:text-accent"
+            >
+              <ExternalLink size={16} />
+            </a>
+          )}
           <button
             type="button"
             onClick={onClose}
@@ -327,6 +393,13 @@ function GalleryLightbox({
               priority
               key={current}
             />
+            {/* Photo counter overlay on image bottom-left — handy when
+                you're deep in a long gallery */}
+            {total > 1 && (
+              <span className="absolute bottom-2 left-2 inline-flex items-center rounded-full border border-border bg-bg/80 px-3 py-1 font-mono text-[11px] text-fg backdrop-blur">
+                {t("modal.counter", { current: index + 1, total })}
+              </span>
+            )}
           </div>
         )}
 
@@ -382,9 +455,6 @@ function GalleryLightbox({
               </button>
             ))}
           </div>
-          <p className="mt-2 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-fg-subtle sm:hidden">
-            {t("modal.counter", { current: index + 1, total })}
-          </p>
         </div>
       )}
     </div>
