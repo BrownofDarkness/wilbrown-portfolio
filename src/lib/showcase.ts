@@ -75,10 +75,15 @@ export function getAllShowcase(): Showcase[] {
   return rows.map(rowToShowcase);
 }
 
+/**
+ * Public-facing showcase list. Returns ALL statuses (live / wip /
+ * archived / sunset) — the public card surfaces the status as a
+ * coloured pill so visitors see the full project history and current
+ * state at a glance. Kept as a named export so we have a single
+ * choke-point if we ever want to gate something later (e.g. drafts).
+ */
 export function getPublicShowcase(): Showcase[] {
-  return getAllShowcase().filter(
-    (s) => s.status === "live" || s.status === "archived",
-  );
+  return getAllShowcase();
 }
 
 export function getShowcaseById(id: number): Showcase | null {
