@@ -29,7 +29,7 @@ export type Skill = {
 export type Connection = [from: string, to: string];
 
 /*
- * 32 core skills laid out as a constellation. Positions are hand-tuned
+ * 37 core skills laid out as a constellation. Positions are hand-tuned
  * inside a 0-100 normalized viewBox. Clusters group by category; a few
  * cross-links tell the actual story without spaghetti-ing the SVG.
  */
@@ -44,7 +44,14 @@ export const SKILLS: Skill[] = [
   { id: "python", label: "Python", category: "backend", icon: "python", x: 36, y: 10 },
   { id: "django", label: "Django", category: "backend", icon: "django", variant: "plain", x: 46, y: 22 },
   { id: "spring", label: "Spring", category: "backend", icon: "spring", x: 56, y: 10 },
+  { id: "php", label: "PHP", category: "backend", icon: "php", x: 44, y: 44 },
   { id: "laravel", label: "Laravel", category: "backend", icon: "laravel", x: 38, y: 36 },
+
+  // ── Web frontend cluster (mid-left, between mobile and infra)
+  { id: "html", label: "HTML", category: "backend", icon: "html5", x: 4, y: 44 },
+  { id: "css", label: "CSS", category: "backend", icon: "css3", x: 14, y: 48 },
+  { id: "javascript", label: "JS", category: "backend", icon: "javascript", x: 4, y: 56 },
+  { id: "nextjs", label: "Next.js", category: "backend", icon: "nextjs", x: 20, y: 50 },
 
   // ── Databases (top-right cluster)
   { id: "postgresql", label: "PostgreSQL", category: "backend", icon: "postgresql", x: 66, y: 12 },
@@ -101,7 +108,13 @@ export const CONNECTIONS: Connection[] = [
   ["spring", "mysql"],
 
   // PHP backend
+  ["php", "laravel"],
   ["laravel", "mysql"],
+
+  // Web frontend chain — HTML/CSS/JS, JS → Next.js (this very portfolio)
+  ["html", "css"],
+  ["html", "javascript"],
+  ["javascript", "nextjs"],
 
   // Caching
   ["python", "redis"],
