@@ -70,6 +70,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       data-theme={theme}
+      data-scroll-behavior="smooth"
       className={`${manrope.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
