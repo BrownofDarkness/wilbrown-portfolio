@@ -29,7 +29,7 @@ export type Skill = {
 export type Connection = [from: string, to: string];
 
 /*
- * 31 core skills laid out as a constellation. Positions are hand-tuned
+ * 32 core skills laid out as a constellation. Positions are hand-tuned
  * inside a 0-100 normalized viewBox. Clusters group by category; a few
  * cross-links tell the actual story without spaghetti-ing the SVG.
  */
@@ -39,6 +39,7 @@ export const SKILLS: Skill[] = [
   { id: "dart", label: "Dart", category: "mobile", icon: "dart", x: 18, y: 14 },
 
   // ── Backend languages (upper-center)
+  { id: "c", label: "C", category: "backend", icon: "c", x: 16, y: 22 },
   { id: "java", label: "Java", category: "backend", icon: "java", x: 28, y: 24 },
   { id: "python", label: "Python", category: "backend", icon: "python", x: 36, y: 10 },
   { id: "django", label: "Django", category: "backend", icon: "django", variant: "plain", x: 46, y: 22 },
@@ -87,6 +88,9 @@ export const SKILLS: Skill[] = [
 export const CONNECTIONS: Connection[] = [
   // Mobile
   ["flutter", "dart"],
+
+  // Educational chain — C/SDL2 (Yaknema 2021) → Python (Django REST)
+  ["c", "python"],
 
   // Python web stack
   ["python", "django"],
