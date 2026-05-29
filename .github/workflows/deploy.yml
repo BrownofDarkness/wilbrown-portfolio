@@ -21,9 +21,14 @@ jobs:
       # step is required BEFORE SSH. Ephemeral = the temp node auto-
       # deregisters when the runner exits.
       - name: Tailscale connect
-        uses: tailscale/github-action@v2
+        uses: tailscale/github-action@v3
         with:
-          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret:    ${{ secrets.TS_OAUTH_SECRET }}
+          # 'tags' is required when authenticating via OAuth client.
+          # Must match a tag that the OAuth client is authorized to
+          # mint keys for (configured in Tailscale ACL tagOwners).
+          tags: tag:ci
 
       - name: SSH deploy
         uses: appleboy/ssh-action@v1
