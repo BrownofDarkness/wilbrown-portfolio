@@ -112,7 +112,26 @@ if [ -f .auth/password.hash ] && [ -s .auth/password.hash ]; then
 else
   echo -e "${C_CYAN}Admin password${C_RESET} — used to log into /admin/login."
   echo "Choose something strong (12+ chars, mix letters/numbers/symbols)."
-  npm run hash
+  echo "Input is silent — you won't see what you type."
+  ADMIN_PWD=""
+  ADMIN_PWD_CONFIRM=""
+  while [ -z "${ADMIN_PWD:-}" ] || [ "$ADMIN_PWD" != "$ADMIN_PWD_CONFIRM" ]; do
+    read -rs -p "Password: " ADMIN_PWD
+    echo
+    if [ ${#ADMIN_PWD} -lt 8 ]; then
+      warn "Too short (need 8+ chars). Try again."
+      ADMIN_PWD=""
+      continue
+    fi
+    read -rs -p "Confirm:  " ADMIN_PWD_CONFIRM
+    echo
+    if [ "$ADMIN_PWD" != "$ADMIN_PWD_CONFIRM" ]; then
+      warn "Passwords do not match. Try again."
+    fi
+  done
+  npm run hash -- "$ADMIN_PWD"
+  # Don't leave the password lingering in the shell
+  unset ADMIN_PWD ADMIN_PWD_CONFIRM
 fi
 echo ""
 
