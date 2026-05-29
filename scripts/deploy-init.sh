@@ -92,10 +92,15 @@ echo ""
 
 # ─── 5. Install deps ─────────────────────────────────────────────────
 # Must run BEFORE the password hash step — that script imports bcryptjs
-# which only exists after npm ci puts it in node_modules.
+# which only exists after install puts it in node_modules.
+#
+# We use 'npm install' (not 'npm ci') so a lock-file drift between
+# package.json and package-lock.json doesn't block the deploy. npm
+# install will update the lock locally on the VPS, which is fine —
+# the canonical lock can be re-synced from any platform later.
 
-echo -e "${C_CYAN}▶ npm ci${C_RESET} — may take a few minutes for native deps (better-sqlite3, sharp)"
-npm ci
+echo -e "${C_CYAN}▶ npm install${C_RESET} — may take a few minutes for native deps (better-sqlite3, sharp)"
+npm install --no-audit --no-fund
 ok "Dependencies installed"
 echo ""
 
