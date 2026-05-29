@@ -90,7 +90,16 @@ else
 fi
 echo ""
 
-# ─── 5. Admin password hash ──────────────────────────────────────────
+# ─── 5. Install deps ─────────────────────────────────────────────────
+# Must run BEFORE the password hash step — that script imports bcryptjs
+# which only exists after npm ci puts it in node_modules.
+
+echo -e "${C_CYAN}▶ npm ci${C_RESET} — may take a few minutes for native deps (better-sqlite3, sharp)"
+npm ci
+ok "Dependencies installed"
+echo ""
+
+# ─── 6. Admin password hash ──────────────────────────────────────────
 
 if [ -f .auth/password.hash ] && [ -s .auth/password.hash ]; then
   info ".auth/password.hash already exists — keeping it"
@@ -100,13 +109,6 @@ else
   echo "Choose something strong (12+ chars, mix letters/numbers/symbols)."
   npm run hash
 fi
-echo ""
-
-# ─── 6. Install deps ─────────────────────────────────────────────────
-
-echo -e "${C_CYAN}▶ npm ci${C_RESET} — may take a few minutes for native deps (better-sqlite3, sharp)"
-npm ci
-ok "Dependencies installed"
 echo ""
 
 # ─── 7. Production build ─────────────────────────────────────────────
