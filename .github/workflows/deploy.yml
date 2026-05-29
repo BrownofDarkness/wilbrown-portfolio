@@ -16,9 +16,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      # Join the user's Tailscale network as an ephemeral node.
+      # The VPS is only reachable via Tailscale (no public SSH), so this
+      # step is required BEFORE SSH. Ephemeral = the temp node auto-
+      # deregisters when the runner exits.
+      - name: Tailscale connect
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          tags: tag:ci
+          version: latest
+
       - name: SSH deploy
         uses: appleboy/ssh-action@v1
         with:
+          # VPS_HOST = Tailscale MagicDNS name or 100.x.x.x IP
           host:     ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key:      ${{ secrets.VPS_SSH_KEY }}
