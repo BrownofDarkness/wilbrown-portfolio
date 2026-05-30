@@ -36,7 +36,7 @@ export type Connection = [from: string, to: string];
 export const SKILLS: Skill[] = [
   // ── Mobile (upper-left)
   { id: "flutter", label: "Flutter", category: "mobile", icon: "flutter", x: 8, y: 30 },
-  { id: "dart", label: "Dart", category: "mobile", icon: "dart", x: 18, y: 14 },
+  { id: "dart", label: "Dart", category: "mobile", icon: "dart", x: 8, y: 14 },
 
   // ── Backend languages (upper-center)
   { id: "c", label: "C", category: "backend", icon: "c", x: 16, y: 22 },
