@@ -18,7 +18,10 @@
 set -euo pipefail
 
 REPO_DIR="${REPO_DIR:-/var/www/wilbrown-portfolio}"
-BACKUP_DIR="${BACKUP_DIR:-/var/backups/portfolio}"
+# Default to user-local backups under $HOME so the cron entry doesn't need
+# sudo. Override with env var if you want /var/backups/portfolio (sudo)
+# or a remote/mounted path.
+BACKUP_DIR="${BACKUP_DIR:-$HOME/backups/portfolio}"
 KEEP_DAYS="${KEEP_DAYS:-30}"
 
 DATE=$(date +%Y-%m-%d_%H%M)
