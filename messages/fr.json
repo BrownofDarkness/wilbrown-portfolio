@@ -79,7 +79,7 @@
       "ibaass": {
         "company": "IBAASS Labs",
         "role": "Développeur Python — Infra & Observabilité",
-        "period": "Jan 2024 — Fév 2025",
+        "period": "Jan 2025 — Fév 2026",
         "summary": "Pipeline SNMP Zabbix → Kafka → Logstash → Elasticsearch → Kibana. Refonte de l'environnement local sous VMware ESXi avec VPN interne (OpenVPN, Pritunl), reverse proxy Nginx, et résolution DNS AWS EC2."
       },
       "coding_industry": {
