@@ -46,27 +46,43 @@ async function processPhoto(
   slug: string,
   index: number,
 ): Promise<string> {
+  const tag = `[event upload][photo ${index + 1}] "${file.name}"`;
+  const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+  console.log(`${tag} start (${sizeMB}MB, ${file.type})`);
+
   if (file.size > MAX_UPLOAD_BYTES) {
+    console.log(`${tag} REJECTED — file too large`);
     throw new Error(
-      `Photo "${file.name}" trop lourde (${(file.size / 1024 / 1024).toFixed(1)}MB · max ${Math.round(MAX_UPLOAD_BYTES / 1024 / 1024)}MB)`,
+      `Photo "${file.name}" trop lourde (${sizeMB}MB · max ${Math.round(MAX_UPLOAD_BYTES / 1024 / 1024)}MB)`,
     );
   }
   if (!ALLOWED_MIME.has(file.type)) {
+    console.log(`${tag} REJECTED — mime not allowed`);
     throw new Error(`"${file.name}" : format ${file.type} non supporté (jpeg/png/webp)`);
   }
 
+  const t0 = Date.now();
   const { default: sharp } = await import("sharp");
   const buf = Buffer.from(await file.arrayBuffer());
+  console.log(`${tag} buffered in ${Date.now() - t0}ms`);
+
+  const t1 = Date.now();
   const resized = await sharp(buf)
     .rotate()
     .resize(1600, 1200, { fit: "inside", withoutEnlargement: true })
     .webp({ quality: 90 })
     .toBuffer();
+  console.log(
+    `${tag} resized in ${Date.now() - t1}ms (${(resized.length / 1024).toFixed(0)}KB output)`,
+  );
 
+  const t2 = Date.now();
   const eventDir = join(UPLOADS_DIR, slug);
   await mkdir(eventDir, { recursive: true });
   const filename = `${Date.now()}-${index}.webp`;
   await writeFile(join(eventDir, filename), resized);
+  console.log(`${tag} written to disk in ${Date.now() - t2}ms → ${filename}`);
+
   return `${UPLOADS_PUBLIC_PREFIX}/${slug}/${filename}`;
 }
 
@@ -127,6 +143,7 @@ export async function saveEventAction(
 
   const data = parsed.data;
   const isUpdate = id !== undefined && id > 0;
+  const actionTag = `[event save] ${isUpdate ? `update id=${id}` : "create"} slug=${data.slug}`;
 
   const existingPhotos = formData.getAll("existingPhotos").map(String);
   const toDelete = new Set(formData.getAll("deletePhotos").map(String));
@@ -136,12 +153,24 @@ export async function saveEventAction(
     .getAll("photos")
     .filter((v): v is File => v instanceof File && v.size > 0);
 
+  const totalMB = (
+    newFiles.reduce((s, f) => s + f.size, 0) / 1024 / 1024
+  ).toFixed(2);
+  console.log(
+    `${actionTag} — start (${newFiles.length} new photo(s), ${totalMB}MB total, ${keptPhotos.length} kept, ${toDelete.size} to delete)`,
+  );
+
+  const tAll = Date.now();
   let newPhotoUrls: string[] = [];
   try {
     newPhotoUrls = await Promise.all(
       newFiles.map((file, i) => processPhoto(file, data.slug, i)),
     );
+    console.log(
+      `${actionTag} — all ${newFiles.length} photo(s) processed in ${Date.now() - tAll}ms`,
+    );
   } catch (e) {
+    console.log(`${actionTag} — photo processing FAILED: ${e instanceof Error ? e.message : e}`);
     return {
       error: e instanceof Error ? e.message : "Upload photo échoué",
       fieldErrors: { photos: "Upload échoué" },
@@ -182,23 +211,30 @@ export async function saveEventAction(
     featured: data.featured === "on",
   };
 
+  const tDB = Date.now();
   try {
     if (isUpdate) {
       updateEvent(id, input);
     } else {
       createEvent(input);
     }
+    console.log(`${actionTag} — DB write ok in ${Date.now() - tDB}ms`);
   } catch (e) {
+    console.log(`${actionTag} — DB write FAILED: ${e instanceof Error ? e.message : e}`);
     return {
       error: e instanceof Error ? e.message : "Erreur DB",
     };
   }
 
-  await Promise.all([...toDelete].map(deletePhotoFile));
+  if (toDelete.size > 0) {
+    await Promise.all([...toDelete].map(deletePhotoFile));
+    console.log(`${actionTag} — deleted ${toDelete.size} old photo file(s)`);
+  }
 
   revalidatePath("/admin/events");
   revalidatePath("/", "layout");
   revalidatePath("/events");
+  console.log(`${actionTag} — complete, redirecting`);
   redirect("/admin/events");
 }
 
